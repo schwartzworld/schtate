@@ -1,6 +1,6 @@
 {
   "name": "schtate",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Functional wrappers for state management",
   "main": "index.js",
   "scripts": {
@@ -8,5 +8,6 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "files": ["lib/**/*"]
 }
