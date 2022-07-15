@@ -1,7 +1,2 @@
-import Maybe from "./src/Maybe";
-import nothing from "./src/nothing";
-
-export default {
-  Maybe,
-  nothing,
-};
+export * from "./src/Maybe";
+export * from "./src/nothing";
