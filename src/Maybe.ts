@@ -51,3 +51,5 @@ class Maybe<Something> {
     return Maybe.create(cb(starterThing, this.value));
   }
 }
+
+export default Maybe;
