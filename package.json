@@ -1,0 +1,12 @@
+{
+  "name": "schtate",
+  "version": "0.0.1",
+  "description": "Functional wrappers for state management",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
