@@ -1,2 +1,9 @@
-export Maybe from './src/Maybe';
-export nothing from './src/nothing';
+import Maybe from './src/Maybe';
+import nothing from './src/nothing';
+
+const exp = {
+	Maybe,
+	nothing
+}
+
+export default exp;
