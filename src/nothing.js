@@ -7,5 +7,4 @@ class Nothing {
     }
 }
 exports.Nothing = Nothing;
-;
 exports.default = new Nothing();

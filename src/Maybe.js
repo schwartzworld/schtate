@@ -42,6 +42,12 @@ class Maybe {
         }
         return new Maybe(val);
     }
+    static nothing() {
+        return Maybe.create(nothing_1.default);
+    }
+    static of(value) {
+        return Maybe.create(value);
+    }
     something(cb) {
         if (!this.isNothing(this.value)) {
             cb(this.value);
@@ -62,9 +68,21 @@ class Maybe {
     }
     reduce(cb, starterThing) {
         if (this.isNothing(this.value)) {
-            return Maybe.create(nothing_1.default);
+            return Maybe.nothing();
         }
         return Maybe.create(cb(starterThing, this.value));
+    }
+    filter(cb) {
+        if (this.isNothing(this.value)) {
+            return Maybe.create(nothing_1.default);
+        }
+        return Maybe.create(cb(this.value));
+    }
+    match({ something: somethingCB, nothing: nothingCB, }) {
+        if (this.isNothing(this.value)) {
+            return nothingCB();
+        }
+        return somethingCB(this.value);
     }
 }
 exports.default = Maybe;

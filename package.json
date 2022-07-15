@@ -1,6 +1,6 @@
 {
   "name": "schtate",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Functional wrappers for state management",
   "main": "index.js",
   "scripts": {

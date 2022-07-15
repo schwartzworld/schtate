@@ -1,4 +1,4 @@
-import nothing, { Nothing } from './nothing'
+import nothing, { Nothing } from "./nothing";
 
 class Maybe<Something> {
   private value: Something | Nothing;
@@ -15,11 +15,19 @@ class Maybe<Something> {
     return this.value instanceof Nothing;
   }
 
-  static create<Something>(val: (Something | Nothing | Maybe<Something>)) {
+  static create<Something>(val: Something | Nothing | Maybe<Something>) {
     if (val instanceof Maybe) {
       return new Maybe<Something>(val.value);
     }
     return new Maybe<Something>(val);
+  }
+
+  static nothing() {
+    return Maybe.create(nothing);
+  }
+
+  static of<T>(value: T) {
+    return Maybe.create(value);
   }
 
   something(cb: (arg: Something) => void): Maybe<Something> {
@@ -28,7 +36,7 @@ class Maybe<Something> {
     }
     return Maybe.create<Something>(this.value);
   }
-  
+
   nothing(cb: (arg: Nothing) => void) {
     if (this.isNothing(this.value)) {
       cb(this.value);
@@ -36,19 +44,45 @@ class Maybe<Something> {
     return Maybe.create<Something>(this.value);
   }
 
-
-  map(cb: (arg: Something) => Something): Maybe<Something> {
+  map<SomethingElse>(
+    cb: (arg: Something) => SomethingElse
+  ): Maybe<SomethingElse> {
     if (this.isNothing(this.value)) {
-      return Maybe.create<Something>(nothing);
+      return Maybe.create<SomethingElse>(nothing);
     }
     return Maybe.create(cb(this.value));
   }
 
-  reduce<T>(cb: (arg0: T, arg1: Something) => T, starterThing: T){
+  reduce<SomethingElse>(
+    cb: (arg0: SomethingElse, arg1: Something) => SomethingElse,
+    starterThing: SomethingElse
+  ) {
+    if (this.isNothing(this.value)) {
+      return Maybe.nothing();
+    }
+    return Maybe.create(cb(starterThing, this.value));
+  }
+
+  filter(
+    cb: (arg: Something) => Partial<Something>
+  ): Maybe<Partial<Something> | Nothing> {
     if (this.isNothing(this.value)) {
       return Maybe.create(nothing);
     }
-    return Maybe.create(cb(starterThing, this.value));
+    return Maybe.create(cb(this.value));
+  }
+
+  match<T, U>({
+    something: somethingCB,
+    nothing: nothingCB,
+  }: {
+    something: (arg: Something) => T;
+    nothing: () => U;
+  }) {
+    if (this.isNothing(this.value)) {
+      return nothingCB();
+    }
+    return somethingCB(this.value);
   }
 }
 
