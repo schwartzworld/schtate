@@ -1,22 +1,22 @@
-import nothing, { Nothing } from "./nothing";
+import { nothing, Nothing } from "./nothing";
 
-class Maybe<Something> {
+export class Maybe<Something> {
   private value: Something | Nothing;
 
   private constructor(value: Something | Nothing) {
-    if (value instanceof Maybe) {
-      this.value = value.value;
-    } else {
-      this.value = value;
-    }
+    this.value = value;
   }
 
   private isNothing(value: unknown): value is Nothing {
     return this.value instanceof Nothing;
   }
 
-  static create<Something>(val: Something | Nothing | Maybe<Something>) {
-    if (val instanceof Maybe) {
+  static isMaybe = (arg: unknown): arg is Maybe<unknown> => {
+    return arg instanceof Maybe;
+  }
+
+  static create<Something>(val: Something | Nothing | Maybe<Something>): Maybe<Something> {
+    if (Maybe.isMaybe(val)) {
       return new Maybe<Something>(val.value);
     }
     return new Maybe<Something>(val);
@@ -85,5 +85,3 @@ class Maybe<Something> {
     return somethingCB(this.value);
   }
 }
-
-export default Maybe;

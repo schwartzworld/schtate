@@ -1,8 +1,9 @@
 import { Nothing } from "./nothing";
-declare class Maybe<Something> {
+export declare class Maybe<Something> {
     private value;
     private constructor();
     private isNothing;
+    static isMaybe: (arg: unknown) => arg is Maybe<unknown>;
     static create<Something>(val: Something | Nothing | Maybe<Something>): Maybe<Something>;
     static nothing(): Maybe<Nothing>;
     static of<T>(value: T): Maybe<T>;
@@ -16,4 +17,3 @@ declare class Maybe<Something> {
         nothing: () => U;
     }): T | U;
 }
-export default Maybe;

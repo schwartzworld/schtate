@@ -2,4 +2,4 @@ export class Nothing {
   isNothing = true;
 }
 
-export default new Nothing();
+export const nothing = new Nothing();
