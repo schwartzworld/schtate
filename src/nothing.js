@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.nothing = exports.Nothing = void 0;
+exports.Nothing = void 0;
 class Nothing {
     constructor() {
         this.isNothing = true;
@@ -8,4 +8,4 @@ class Nothing {
 }
 exports.Nothing = Nothing;
 ;
-exports.nothing = new Nothing();
+exports.default = new Nothing();
