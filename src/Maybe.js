@@ -67,3 +67,4 @@ class Maybe {
         return Maybe.create(cb(starterThing, this.value));
     }
 }
+exports.default = Maybe;
