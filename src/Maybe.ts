@@ -24,8 +24,8 @@ export class Maybe<Something> {
     return new Maybe<Something>(val);
   }
 
-  static nothing() {
-    return Maybe.of(nothing);
+  static nothing<T>() {
+    return Maybe.of<T>(nothing);
   }
 
   something(cb: (arg: Something) => void): Maybe<Something> {

@@ -63,7 +63,7 @@ describe("Maybe Monad Tests", () => {
         expect(val).toBe(someString.length);
       });
 
-    Maybe.nothing()
+    Maybe.nothing<number>()
       .map((val) => {
         return val.toString();
       })
@@ -74,35 +74,79 @@ describe("Maybe Monad Tests", () => {
     Maybe.of(new Date())
       .map((d) => {
         return d.toUTCString();
-      }).map(str => {
-        return str.split('');
-      }).map(arr => {
+      })
+      .map((str) => {
+        return str.split("");
+      })
+      .map((arr) => {
         return arr.reverse();
-      }).something((val) => {
+      })
+      .something((val) => {
         expect(Array.isArray(val)).toBeTruthy();
-    });
+      });
   });
 
-  it('has a reduce method that takes a starter value', () => {
+  it("has a reduce method that takes a starter value", () => {
     expect.assertions(3);
-    Maybe.of(100).reduce((total, val) => {
-      return total + val;
-    }, 100).something((val) => {
-      expect(val).toBe(200);
-    });
+    Maybe.of(100)
+      .reduce((total, val) => {
+        return total + val;
+      }, 100)
+      .something((val) => {
+        expect(val).toBe(200);
+      });
 
     const starterArr = [1, 2, 3, 4];
-    Maybe.of(5).reduce<number[]>((arr, val) => {
-      return arr.concat(val);
-    }, starterArr).something(arr => {
-      expect(arr).toHaveLength(starterArr.length + 1);
-    });
+    Maybe.of(5)
+      .reduce<number[]>((arr, val) => {
+        return arr.concat(val);
+      }, starterArr)
+      .something((arr) => {
+        expect(arr).toHaveLength(starterArr.length + 1);
+      });
 
-    Maybe.nothing().reduce<(number | typeof nothing)[]>((arr, val) => {
-      return arr.concat(val);
-    }, starterArr).nothing((val) => {
-      expect(val).toBe(nothing);
-    });
+    Maybe.nothing<number>()
+      .reduce((arr, val) => {
+        return arr.concat(val);
+      }, starterArr)
+      .nothing((val) => {
+        expect(val).toBe(nothing);
+      });
+  });
 
+  it("has a match function that returns the wrapped value", () => {
+    const me = { username: "schwartz" };
+    const unwrapped = Maybe.of(me).match({
+      something: (v) => v,
+      nothing: () => null,
+    });
+    expect(unwrapped).toBe(me);
+
+    const nothingStr = "nothing";
+    const unwrappedNothing = Maybe.nothing().match({
+      something: (v) => null,
+      nothing: () => nothingStr,
+    });
+    expect(unwrappedNothing).toBe(nothingStr);
+  });
+
+  it("match function can map values", () => {
+    const userObj = {
+      firstName: "irving",
+      lastName: "schwartz",
+      age: 40,
+    };
+
+    const u = Maybe.of(userObj).match({
+      something: (user) => user.firstName + " " + user.lastName,
+      nothing: () => null,
+    });
+    expect(u).toBe(`${userObj.firstName} ${userObj.lastName}`);
+
+    const v = Maybe.nothing<typeof userObj>().match({
+      something: (user) => user.firstName + " " + user.lastName,
+      nothing: () => null,
+    });
+    expect(v).toBe(null);
   });
 });
