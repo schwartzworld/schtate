@@ -13,9 +13,11 @@ export class Maybe<Something> {
 
   static isMaybe = (arg: unknown): arg is Maybe<unknown> => {
     return arg instanceof Maybe;
-  }
+  };
 
-  static create<Something>(val: Something | Nothing | Maybe<Something>): Maybe<Something> {
+  static of<Something>(
+    val: Something | Nothing | Maybe<Something>
+  ): Maybe<Something> {
     if (Maybe.isMaybe(val)) {
       return new Maybe<Something>(val.value);
     }
@@ -23,34 +25,30 @@ export class Maybe<Something> {
   }
 
   static nothing() {
-    return Maybe.create(nothing);
-  }
-
-  static of<T>(value: T) {
-    return Maybe.create(value);
+    return Maybe.of(nothing);
   }
 
   something(cb: (arg: Something) => void): Maybe<Something> {
     if (!this.isNothing(this.value)) {
       cb(this.value);
     }
-    return Maybe.create<Something>(this.value);
+    return Maybe.of<Something>(this.value);
   }
 
   nothing(cb: (arg: Nothing) => void) {
     if (this.isNothing(this.value)) {
       cb(this.value);
     }
-    return Maybe.create<Something>(this.value);
+    return Maybe.of<Something>(this.value);
   }
 
   map<SomethingElse>(
     cb: (arg: Something) => SomethingElse
   ): Maybe<SomethingElse> {
     if (this.isNothing(this.value)) {
-      return Maybe.create<SomethingElse>(nothing);
+      return Maybe.of<SomethingElse>(nothing);
     }
-    return Maybe.create(cb(this.value));
+    return Maybe.of(cb(this.value));
   }
 
   reduce<SomethingElse>(
@@ -60,16 +58,7 @@ export class Maybe<Something> {
     if (this.isNothing(this.value)) {
       return Maybe.nothing();
     }
-    return Maybe.create(cb(starterThing, this.value));
-  }
-
-  filter(
-    cb: (arg: Something) => Partial<Something>
-  ): Maybe<Partial<Something> | Nothing> {
-    if (this.isNothing(this.value)) {
-      return Maybe.create(nothing);
-    }
-    return Maybe.create(cb(this.value));
+    return Maybe.of(cb(starterThing, this.value));
   }
 
   match<T, U>({
