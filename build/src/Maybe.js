@@ -42,12 +42,6 @@ class Maybe {
         }
         return Maybe.of(cb(starterThing, this.value));
     }
-    filter(cb) {
-        if (this.isNothing(this.value)) {
-            return Maybe.of(nothing_1.nothing);
-        }
-        return Maybe.of(cb(this.value));
-    }
     match({ something: somethingCB, nothing: nothingCB, }) {
         if (this.isNothing(this.value)) {
             return nothingCB();
