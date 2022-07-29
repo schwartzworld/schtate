@@ -149,4 +149,29 @@ describe("Maybe Monad Tests", () => {
     });
     expect(v).toBe(null);
   });
+
+  it("can be created from a function", () => {
+    Maybe.fromFunction(() => {
+      return null;
+    })
+      .something(() => {
+        expect("This should not run").toBe("Oops");
+      })
+      .nothing(() => {
+        expect(1).toBe(1);
+      })
+      .something(() => {
+        expect("This should not run").toBe("Oops");
+      });
+
+    Maybe.fromFunction(() => {
+      return { foo: "bar" };
+    })
+      .nothing(() => {
+        expect("This should not run").toBe("Oops");
+      })
+      .something((value) => {
+        expect(value.foo).toBe("bar");
+      });
+  });
 });
