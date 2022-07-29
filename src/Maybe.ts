@@ -1,6 +1,7 @@
 import { nothing, Nothing } from "./nothing";
+import { Schtate } from "./types/Schtate";
 
-export class Maybe<Something> {
+export class Maybe<Something> implements Schtate<Something> {
   private value: Something | Nothing;
 
   private constructor(value: Something | Nothing) {
@@ -16,12 +17,20 @@ export class Maybe<Something> {
   };
 
   static of<Something>(
-    val: Something | Nothing | Maybe<Something>
+    val: Something | Nothing | Maybe<Something> | null | undefined
   ): Maybe<Something> {
+    if (val === null || val === undefined) {
+      return Maybe.nothing<Something>();
+    }
     if (Maybe.isMaybe(val)) {
       return new Maybe<Something>(val.value);
     }
     return new Maybe<Something>(val);
+  }
+
+  static fromFunction<Something>(cb: () => Something | null | Nothing) {
+    const value = cb();
+    return Maybe.of(value);
   }
 
   static nothing<T>() {
@@ -54,7 +63,7 @@ export class Maybe<Something> {
   reduce<SomethingElse>(
     cb: (arg0: SomethingElse, arg1: Something) => SomethingElse,
     starterThing: SomethingElse
-  ) {
+  ): Maybe<SomethingElse> {
     if (this.isNothing(this.value)) {
       return Maybe.nothing();
     }

@@ -1,4 +1,4 @@
 export declare class Nothing {
-    isNothing: boolean;
+  isNothing: boolean;
 }
 export declare const nothing: Nothing;
