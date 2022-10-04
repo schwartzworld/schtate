@@ -6,7 +6,10 @@ export declare class Maybe<Something> implements Schtate<Something> {
   private isNothing;
   static isMaybe: (arg: unknown) => arg is Maybe<unknown>;
   static of<Something>(
-    val: Something | Nothing | Maybe<Something>
+    val: Something | Nothing | Maybe<Something> | null | undefined
+  ): Maybe<Something>;
+  static fromFunction<Something>(
+    cb: () => Something | null | Nothing
   ): Maybe<Something>;
   static nothing<T>(): Maybe<T>;
   something(cb: (arg: Something) => void): Maybe<Something>;

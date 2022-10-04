@@ -1,4 +1,5 @@
 # schtate
+
 ## Functional Wrappers for State Management
 
 This library offers monadic data containers for managing state.
@@ -42,7 +43,7 @@ someAsyncFunction().then((data) => doSomething(data)
 In the above example, `.then` only gets called after the Promise resolves. If the promise never
 resolves, `.then` never gets called. Once you internalize this pattern, it becomes very powerful, because you
 can describe a sequence of actions, without any checks, and know that the steps will execute in the order you
-describe. 
+describe.
 
 `Maybe` works more or less the same way. You can wrap a variable or the output of a function in `Maybe`,
 and you can write code that operates on that data as if it were present (or not present) without ever checking
@@ -50,7 +51,7 @@ what the actual value is.
 
 ```
 // Maybe you get a string, maybe not?
-const optionalString = Math.random() > 0.5 ? "words go here" : null; 
+const optionalString = Math.random() > 0.5 ? "words go here" : null;
 const maybeString = Maybe.of<string>(optionalString); // Wrap the value in a Maybe
 
 // If the string exists, returns a Maybe with the string's length as its value
@@ -85,7 +86,7 @@ const total = firstPost.reduce<number>((total, post) => {
 #### Creating a `Maybe`
 
 `Maybe` can be created from a value or a callback. If the value is `null` or `undefined`, you'll get a
-`Maybe` of `nothing`. If the value itself is a `Maybe`, it'll get flattened (no `Maybe<Maybe<string>>`) 
+`Maybe` of `nothing`. If the value itself is a `Maybe`, it'll get flattened (no `Maybe<Maybe<string>>`)
 
 There are also utility method for creating a typed `Maybe` of nothing. This is useful for testing.
 
