@@ -52,57 +52,57 @@ describe("Bool tests", () => {
       // @ts-ignore
       expect(Bool.false().value).toBe(false);
     });
-  })
+  });
 
   describe("working with Bools", () => {
-    it('takes a callback that only runs when truthy', () => {
-      expect.assertions(1)
+    it("takes a callback that only runs when truthy", () => {
+      expect.assertions(1);
       Bool.true()
         .true(() => {
           expect("this test will pass").toBeTruthy();
         })
         .false(() => {
           expect("this test should not run").toBeFalsy();
-        })
-    })
+        });
+    });
 
-    it('takes a callback that only runs when falsy', () => {
-      expect.assertions(1)
+    it("takes a callback that only runs when falsy", () => {
+      expect.assertions(1);
       Bool.false()
         .true(() => {
           expect("this test should not run").toBeFalsy();
         })
         .false(() => {
           expect("this test will pass").toBeTruthy();
-        })
-    })
+        });
+    });
 
-    it('has a map function for compounding booleans', () => {
-      expect.assertions(2)
+    it("has a map function for compounding booleans", () => {
+      expect.assertions(2);
       const trueBool = Bool.true();
-      const falseBool = trueBool.map(val => val && false);
+      const falseBool = trueBool.map((val) => val && false);
       falseBool.false(() => {
         expect("this test will pass").toBeTruthy();
       });
 
-      const anotherTrue = falseBool.map(val => val || true);
+      const anotherTrue = falseBool.map((val) => val || true);
       anotherTrue.true(() => {
         expect("this test should pass").toBeTruthy();
-      })
-    })
+      });
+    });
 
-    it('can extract its value via pattern matching', () => {
+    it("can extract its value via pattern matching", () => {
       const shouldBeFoo = Bool.true().match({
-        true: () => 'foo',
-        false: () => 'bar'
+        true: () => "foo",
+        false: () => "bar",
       });
-      expect(shouldBeFoo).toBe('foo');
-      
+      expect(shouldBeFoo).toBe("foo");
+
       const shouldBeBar = Bool.false().match({
-        true: () => 'foo',
-        false: () => 'bar'
+        true: () => "foo",
+        false: () => "bar",
       });
-      expect(shouldBeBar).toBe('bar');
-    })
-  })
+      expect(shouldBeBar).toBe("bar");
+    });
+  });
 });
