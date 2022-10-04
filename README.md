@@ -1,11 +1,14 @@
 # schtate
+
 ## Functional Wrappers for State Management
 
 This library offers monadic data containers for managing state.
 
 ### Nothing - A saner way of declaring non-existence
 
-There is only one `nothing` in any project. It's not undefined or null. It's just nothing.
+There is only one `nothing` in any project. It's not undefined or null. It's just nothing. You should
+never have to interact with `nothing` directly as it's an implementation
+detail of `Maybe` but it's good to know about, nevertheless.
 
 ### Maybe - For things that may or may not exist
 
@@ -42,7 +45,7 @@ someAsyncFunction().then((data) => doSomething(data)
 In the above example, `.then` only gets called after the Promise resolves. If the promise never
 resolves, `.then` never gets called. Once you internalize this pattern, it becomes very powerful, because you
 can describe a sequence of actions, without any checks, and know that the steps will execute in the order you
-describe. 
+describe.
 
 `Maybe` works more or less the same way. You can wrap a variable or the output of a function in `Maybe`,
 and you can write code that operates on that data as if it were present (or not present) without ever checking
@@ -50,7 +53,7 @@ what the actual value is.
 
 ```
 // Maybe you get a string, maybe not?
-const optionalString = Math.random() > 0.5 ? "words go here" : null; 
+const optionalString = Math.random() > 0.5 ? "words go here" : null;
 const maybeString = Maybe.of<string>(optionalString); // Wrap the value in a Maybe
 
 // If the string exists, returns a Maybe with the string's length as its value
@@ -85,7 +88,7 @@ const total = firstPost.reduce<number>((total, post) => {
 #### Creating a `Maybe`
 
 `Maybe` can be created from a value or a callback. If the value is `null` or `undefined`, you'll get a
-`Maybe` of `nothing`. If the value itself is a `Maybe`, it'll get flattened (no `Maybe<Maybe<string>>`) 
+`Maybe` of `nothing`. If the value itself is a `Maybe`, it'll get flattened (no `Maybe<Maybe<string>>`)
 
 There are also utility method for creating a typed `Maybe` of nothing. This is useful for testing.
 
@@ -158,4 +161,67 @@ const Component: FC<{user: Maybe<UserData>> = ({ user }) => {
     nothing: () => <Redirect to="/login" />
   });
 };
+```
+
+### Bool - Saving you from your own conditional logic
+
+#### What's wrong with Booleans?
+
+In JS, we have a built in `Boolean` type that can wrap any value.
+There are a few problems with them though.
+
+For one, JS Booleans have a typecasting problem. `Boolean(0)` evaluates to `false`.
+This is a problem in cases where we are expecting a number and 0 is a valid
+input. The same problem exists with `Boolean('')`, is an empty
+string necessarily a falsy value?
+
+Type coersion aside, JS Booleans also encourage the use of conditional
+logic. `If/else` and ternary statements and Boolean operators. If you have
+never written a "one-liner" like below, congratulations, you win.
+
+```
+const headerText = userIsLoggedIn
+    ? user.age === undefined
+        ? `You are ${user.age} years old'
+        : someOtherVariable || 'defaultValue
+    : isFirstTime
+        ? 'Welcome stranger'
+        : props.message || 'Welcome';
+```
+
+Which brings us to `Bool`. `Bool` hides its internal value, much like
+`Maybe` above. You can only get to it in the body of the `map` method.
+The `map` method is the way to compound booleans. You can't just string
+together a bunch of `||` and `&&` and `? : ;`. Sure it's a little wordy,
+but that verboseness is better than mishmoshing everything together in
+a single expression.
+
+```
+const coinFlip = () => Math.random() > 0.5;
+const result = Bool.of(coinFlip());
+const compoundedResult = result.map((value: boolean) => {
+  return value && coinFlip();
+});
+const alwaysFalse = compoundedResult.map(value => value && false);
+```
+
+You don't need to actually access the value to operate on it. Just like
+`Maybe`, `Bool` includes callback functions that will execute if the value
+is truthy or falsy. The functions can be easily chained.
+
+```
+Bool.of(coinFlip())
+    .true(() => console.log('i won')) // will execute if true
+    .false(() => console.log('i lost')); // will execute if false
+```
+
+Eventually, you might need to access the value of a `Bool`. `Bool` has
+a pattern-matching function on it, just like `Maybe`. You should
+avoid unwrapping them if you don't need to.
+
+```
+return coinFlip({
+    true: () => <Redirect to="/winner" />
+    false: () => <div>You lose</div>
+})
 ```

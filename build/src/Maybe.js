@@ -10,10 +10,17 @@ class Maybe {
         return this.value instanceof nothing_1.Nothing;
     }
     static of(val) {
+        if (val === null || val === undefined) {
+            return Maybe.nothing();
+        }
         if (Maybe.isMaybe(val)) {
             return new Maybe(val.value);
         }
         return new Maybe(val);
+    }
+    static fromFunction(cb) {
+        const value = cb();
+        return Maybe.of(value);
     }
     static nothing() {
         return Maybe.of(nothing_1.nothing);
