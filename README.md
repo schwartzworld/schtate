@@ -10,6 +10,41 @@ There is only one `nothing` in any project. It's not undefined or null. It's jus
 never have to interact with `nothing` directly as it's an implementation
 detail of `Maybe` but it's good to know about, nevertheless.
 
+### State - An all-purpose algebraic container
+
+Most of the job I do as a professional dev involves retreiving, modifying and storing data. 
+`State` is an all-purpose box to stick your data into. It's immutable, but offers methods for working with 
+the data.
+
+#### Matching the JavaScript `Array` API
+
+Seasoned JS devs use arrays a lot, because they have a great API for interacting with them. Methods like
+`map`, `reduce` and `filter` allow functional programming techniques that give you a great deal of certainty
+in your code, and are chainable because each returns a new array. They work just as well on empty arrays as
+they do on ones with values. These methods are often applied to regular objects
+by converting the objects to arrays with `Object.keys`, `Object.values` and `Object.entries`. `State` implements the
+`schtate` interface, offering `map` and `reduce` methods to give you the same easy language for describing your data changes.
+
+```typescript
+const score: State<number> = State.of(0);
+const mapped: State<number> = score.map(value => value + 1);
+const reduced: State<string> = mapped.reduce((outputStr, value) => {
+    return outputStr + String(value);
+}, 'The final score is ');
+```
+
+#### State.prototype.match
+
+The `match` instance method is the only valid way to access or retrieve the value from a `State`.
+
+```typescript
+const word: State<string> = State.of("hello");
+const length: State<number> = word.map(str => str.length);
+const unwrapped: string[] = length.match(num => {
+    return new Array(num).fill('hello');
+});
+``` 
+
 ### Maybe - For things that may or may not exist
 
 #### Defining the problem
@@ -18,7 +53,7 @@ Some things exist, and some don't. Whether it's an API response, a database quer
 account for things not being there. The average developer writes a lot of code to account for nothingness. There are
 a lot of ways to do this.
 
-```
+```typescript
 const user = response?.user; // nullable chaining
 const name = user ? user.name : null; // ternary
 
@@ -38,8 +73,8 @@ fallback values. Totally fine. But what if there's a better way?
 `Maybe` lets you write code that operates on your data without worrying
 if the data is actually present. There is already precedent for this in JavaScript promises.
 
-```
-someAsyncFunction().then((data) => doSomething(data)
+```typescript
+someAsyncFunction().then((data) => doSomething(data));
 ```
 
 In the above example, `.then` only gets called after the Promise resolves. If the promise never
@@ -51,7 +86,7 @@ describe.
 and you can write code that operates on that data as if it were present (or not present) without ever checking
 what the actual value is.
 
-```
+```typescript
 // Maybe you get a string, maybe not?
 const optionalString = Math.random() > 0.5 ? "words go here" : null;
 const maybeString = Maybe.of<string>(optionalString); // Wrap the value in a Maybe
@@ -70,14 +105,9 @@ length.something((value) => {
 
 #### Matching the JavaScript `Array` API
 
-Seasoned JS devs use arrays a lot, because they have a great API for interacting with them. Methods like
-`map`, `reduce` and `filter` allow functional programming techniques that give you a great deal of certainty
-in your code, and are chainable because each returns a new array. They work just as well on empty arrays as
-they do on ones with values. These methods are often applied to regular objects
-by converting the objects to arrays with `Object.keys`, `Object.values` and `Object.entries`. `Maybe` seeks
-to give you the same easy language for describing your data changes.
+`Maybe` implements the `schtate` interface, meaning it has methods that match the JS Array API, namely `Map` and `Reduce`.
 
-```
+```typescript
 const user = Maybe.fromFunction<User>(getUser);
 const firstPost = user.map<string>(u => u.posts[0]);
 const total = firstPost.reduce<number>((total, post) => {
@@ -92,7 +122,7 @@ const total = firstPost.reduce<number>((total, post) => {
 
 There are also utility method for creating a typed `Maybe` of nothing. This is useful for testing.
 
-```
+```typescript
 const m = Maybe.of<string>('hello') // Maybe of string
 const n = Maybe.of(undefined) // nothing
 const o = Maybe.of<string>(Math.random() > 0.5 ? 'hello' : null); // could be either one
@@ -109,7 +139,7 @@ Because this is JavaScript you _could_ inspect the value of the `Maybe` directly
 that brings us right back to If-ville. This is one of the many reasons why this library is easier to use with
 TypeScript.
 
-```
+```typescript
 const m = Maybe.of(whatever);
 const v = m.value; // TypeScript won't like this
 if (v) {
@@ -130,7 +160,7 @@ Instead, `Maybe` includes 3 methods.
 Both methods return the same `Maybe` they were called on, meaning you can endlessly chain them. See how
 the above example works with these methods.
 
-```
+```typescript
 const m = Maybe.of(whatever);
 m.something((value) => {
   postToAPI(value);
@@ -142,7 +172,7 @@ m.something((value) => {
 This is the escape hatch, the only "right" way of extracting the value from a Maybe. This gets you out of your endless
 `Maybe` chain and back into If-ville. In the example below, `notAMaybe` will either be your value times 2, or it will be zero.
 
-```
+```typescript
 const m = Maybe.of<number>(whatever);
 
 const notAMaybe = m.match({
@@ -153,7 +183,7 @@ const notAMaybe = m.match({
 
 A less contrived example, in ReactJS:
 
-```
+```typescript
 type UserData = { username: string, age: number }
 const Component: FC<{user: Maybe<UserData>> = ({ user }) => {
   return user.match({
@@ -179,7 +209,7 @@ Type coersion aside, JS Booleans also encourage the use of conditional
 logic. `If/else` and ternary statements and Boolean operators. If you have
 never written a "one-liner" like below, congratulations, you win.
 
-```
+```typescript
 const headerText = userIsLoggedIn
     ? user.age === undefined
         ? `You are ${user.age} years old'
@@ -196,7 +226,7 @@ together a bunch of `||` and `&&` and `? : ;`. Sure it's a little wordy,
 but that verboseness is better than mishmoshing everything together in
 a single expression.
 
-```
+```typescript
 const coinFlip = () => Math.random() > 0.5;
 const result = Bool.of(coinFlip());
 const compoundedResult = result.map((value: boolean) => {
@@ -209,7 +239,7 @@ You don't need to actually access the value to operate on it. Just like
 `Maybe`, `Bool` includes callback functions that will execute if the value
 is truthy or falsy. The functions can be easily chained.
 
-```
+```typescript
 Bool.of(coinFlip())
     .true(() => console.log('i won')) // will execute if true
     .false(() => console.log('i lost')); // will execute if false
@@ -219,7 +249,7 @@ Eventually, you might need to access the value of a `Bool`. `Bool` has
 a pattern-matching function on it, just like `Maybe`. You should
 avoid unwrapping them if you don't need to.
 
-```
+```typescript
 return coinFlip({
     true: () => <Redirect to="/winner" />
     false: () => <div>You lose</div>
