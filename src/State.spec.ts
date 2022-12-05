@@ -1,6 +1,6 @@
 import { Maybe } from "./Maybe";
 import { nothing } from "./nothing";
-import {State} from "./State";
+import { State } from "./State";
 
 describe("State Monad Tests", () => {
   it("has methods that create a State", () => {
@@ -8,13 +8,13 @@ describe("State Monad Tests", () => {
     const foo = "foo";
 
     State.of(foo).match((val) => {
-      expect(val).toBe(foo)
+      expect(val).toBe(foo);
     });
 
     State.fromFunction(() => {
       return 5;
-    }).match(val => {
-      expect(val).toBe(5)
+    }).match((val) => {
+      expect(val).toBe(5);
     });
   });
 
@@ -22,21 +22,23 @@ describe("State Monad Tests", () => {
     expect.assertions(4);
 
     const someString = "some string";
-    const strState = State.of(someString)
+    const strState = State.of(someString);
     const arrState = strState.map((str: string) => {
-      return str.split('');
+      return str.split("");
     });
 
     arrState.match((arr: string[]) => {
-      expect(arr).toHaveLength(someString.length)
-      expect(arr).toBeInstanceOf(Array)
-    })
-
-    arrState.map<number>((arr: string[]) => {
-      return arr.length;
-    }).match((num: Number) => {
-      expect(num).toBe(someString.length);
+      expect(arr).toHaveLength(someString.length);
+      expect(arr).toBeInstanceOf(Array);
     });
+
+    arrState
+      .map<number>((arr: string[]) => {
+        return arr.length;
+      })
+      .match((num: Number) => {
+        expect(num).toBe(someString.length);
+      });
 
     expect(State.isState(arrState)).toBe(true);
   });
@@ -69,8 +71,8 @@ describe("State Monad Tests", () => {
     expect(unwrapped).toBe(me);
 
     const numbers = [1, 2, 3];
-    const second = State.of(numbers).match(numArr => {
-      return numArr[1]
+    const second = State.of(numbers).match((numArr) => {
+      return numArr[1];
     });
 
     expect(second).toBe(numbers[1]);

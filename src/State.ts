@@ -11,9 +11,7 @@ export class State<Something> implements Schtate<Something> {
     return arg instanceof State;
   };
 
-  static of<Something>(
-    val: Something
-  ): State<Something> {
+  static of<Something>(val: Something): State<Something> {
     return new State<Something>(val);
   }
 
@@ -36,6 +34,6 @@ export class State<Something> implements Schtate<Something> {
   }
 
   match(cb: (arg: Something) => unknown) {
-    return cb(this.value)
+    return cb(this.value);
   }
 }
