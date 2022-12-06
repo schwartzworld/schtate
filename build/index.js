@@ -17,3 +17,4 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./src/Maybe"), exports);
 __exportStar(require("./src/nothing"), exports);
 __exportStar(require("./src/Bool"), exports);
+__exportStar(require("./src/State"), exports);
