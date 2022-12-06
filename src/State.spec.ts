@@ -71,10 +71,21 @@ describe("State Monad Tests", () => {
     expect(unwrapped).toBe(me);
 
     const numbers = [1, 2, 3];
-    const second = State.of(numbers).match((numArr) => {
+    const second = State.of(numbers).match<number>((numArr) => {
       return numArr[1];
     });
 
     expect(second).toBe(numbers[1]);
+
+    const fn = jest.fn();
+    const somethingElse = State.of("schwartz")
+      .map((str) => str[0])
+      .match((firstLetter) => {
+        fn(firstLetter);
+        return firstLetter + firstLetter;
+      });
+
+    expect(somethingElse).toBe("ss");
+    expect(fn).toHaveBeenCalledWith("s");
   });
 });

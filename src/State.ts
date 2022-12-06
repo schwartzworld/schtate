@@ -33,7 +33,7 @@ export class State<Something> implements Schtate<Something> {
     return State.of(cb(starterThing, this.value));
   }
 
-  match(cb: (arg: Something) => unknown) {
+  match<T>(cb: (arg: Something) => T) {
     return cb(this.value);
   }
 }

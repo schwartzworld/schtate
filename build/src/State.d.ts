@@ -12,5 +12,5 @@ export declare class State<Something> implements Schtate<Something> {
     cb: (arg0: SomethingElse, arg1: Something) => SomethingElse,
     starterThing: SomethingElse
   ): State<SomethingElse>;
-  match(cb: (arg: Something) => unknown): unknown;
+  match<T>(cb: (arg: Something) => T): T;
 }
