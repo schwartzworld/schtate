@@ -255,3 +255,59 @@ return coinFlip({
     false: () => <div>You lose</div>
 })
 ```
+
+### Either
+#### I really don't want you to write `if` statements
+
+Every `Either` has two sides. You can create one side or the other directly with 
+built-in static methods.
+
+```typescript
+const l: Either<string, unknown> = Either.left('a string'); 
+const r: Either<unknown, number> = Either.right(100); 
+```
+
+Of course, if you're using an either it's because you don't know which of the two you're going to get.
+For this, you can use `Either.fromFunction`.
+
+```typescript
+const x: Either<string, number> = Either.fromFunction(() => {
+    if (someCondition) return Left('a string'); // yes I know this is an If, but it's just the one
+    return 100;
+}); 
+```
+
+Much like `Maybe`, either has chainable methods for mapping over one side, the other or both.
+
+```typescript
+const y: Either<number, string[]> = x.left((leftVal: string) => {
+    return leftVal.length;
+}).right((rightVal: number) => {
+    return new Array(rightVal).fill('string');
+});
+
+const z: Either<number, string[]> = x.map({
+    left: (leftVal: string) => {
+        return leftVal.length;
+    },
+    right: (rightVal: number) => {
+        return new Array(rightVal).fill('string');
+    }
+})
+```
+
+How to get a value back out of an Either? You guessed it! `Either.prototype.match`!
+
+```typescript
+const unwrapped: string | number = x.match({
+    left: (leftVal: string) => {
+        return leftVal;
+    },
+    right: (rightVal: number) => {
+        return rightVal;
+    }
+})
+```
+
+
+
