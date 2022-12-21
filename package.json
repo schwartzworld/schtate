@@ -7,6 +7,10 @@
     "test": "jest",
     "build": "rm -rf build && tsc"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/schwartzworld/schtate.git"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
