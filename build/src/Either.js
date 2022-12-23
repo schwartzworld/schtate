@@ -9,6 +9,9 @@ class Either {
     static of(val, whichSide) {
         return new Either(val, whichSide);
     }
+    static isEither(val) {
+        return val instanceof Either;
+    }
     static fromFunction(cb) {
         return cb();
     }

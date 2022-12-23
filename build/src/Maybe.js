@@ -2,19 +2,28 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Maybe = void 0;
 const nothing_1 = require("./nothing");
+const Either_1 = require("./Either");
 class Maybe {
     constructor(value) {
-        this.value = value;
+        this.value = Either_1.Either.fromFunction(() => {
+            if (this.isNothing(value)) {
+                return Either_1.Either.right(value);
+            }
+            return Either_1.Either.left(value);
+        });
     }
     isNothing(value) {
-        return this.value instanceof nothing_1.Nothing;
+        return value instanceof nothing_1.Nothing;
+    }
+    static nothing() {
+        return Maybe.of(nothing_1.nothing);
     }
     static of(val) {
         if (val === null || val === undefined) {
             return Maybe.nothing();
         }
         if (Maybe.isMaybe(val)) {
-            return new Maybe(val.value);
+            return val;
         }
         return new Maybe(val);
     }
@@ -22,38 +31,43 @@ class Maybe {
         const value = cb();
         return Maybe.of(value);
     }
-    static nothing() {
-        return Maybe.of(nothing_1.nothing);
-    }
     something(cb) {
-        if (!this.isNothing(this.value)) {
-            cb(this.value);
-        }
-        return Maybe.of(this.value);
+        this.value.left((val) => cb(val));
+        return this;
     }
     nothing(cb) {
-        if (this.isNothing(this.value)) {
-            cb(this.value);
-        }
-        return Maybe.of(this.value);
+        this.value.right(cb);
+        return this;
     }
     map(cb) {
-        if (this.isNothing(this.value)) {
-            return Maybe.of(nothing_1.nothing);
-        }
-        return Maybe.of(cb(this.value));
+        return Maybe.fromFunction(() => {
+            return this.value.match({
+                left: (val) => {
+                    return cb(val);
+                },
+                right: () => {
+                    return nothing_1.nothing;
+                },
+            });
+        });
     }
     reduce(cb, starterThing) {
-        if (this.isNothing(this.value)) {
-            return Maybe.nothing();
-        }
-        return Maybe.of(cb(starterThing, this.value));
+        return Maybe.fromFunction(() => {
+            return this.value.match({
+                left: (val) => {
+                    return cb(starterThing, val);
+                },
+                right: () => {
+                    return nothing_1.nothing;
+                },
+            });
+        });
     }
     match({ something: somethingCB, nothing: nothingCB, }) {
-        if (this.isNothing(this.value)) {
-            return nothingCB();
-        }
-        return somethingCB(this.value);
+        return this.value.match({
+            left: somethingCB,
+            right: nothingCB,
+        });
     }
 }
 exports.Maybe = Maybe;

@@ -14,6 +14,10 @@ export class Either<L, R> {
     return new Either<L, R>(val, whichSide);
   }
 
+  static isEither(val: unknown): val is Either<unknown, unknown> {
+    return val instanceof Either;
+  }
+
   static fromFunction<L, R>(cb: () => Either<L, R>) {
     return cb();
   }
@@ -38,20 +42,20 @@ export class Either<L, R> {
     const l = this.value;
 
     if (this.isLeft(l)) {
-      return Either.left(cb(l) as X);
+      return Either.left<X, R>(cb(l) as X);
     }
 
-    return Either.right(this.value as R);
+    return Either.right<X, R>(this.value as R);
   }
 
   right<Y>(cb: (arg: R) => L | Y): Either<L, Y> {
     const r = this.value;
 
     if (this.isRight(r)) {
-      return Either.right(cb(r) as Y);
+      return Either.right<L, Y>(cb(r) as Y);
     }
 
-    return Either.left(this.value as L);
+    return Either.left<L, Y>(this.value as L);
   }
 
   map<T, U>({

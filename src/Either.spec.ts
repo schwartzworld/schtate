@@ -15,6 +15,25 @@ describe("Either Monad Tests", () => {
     expect(fromFn).toBeInstanceOf(Either);
   });
 
+  it("can validate if something is an Either", () => {
+    expect(Either.isEither(1)).toBe(false);
+    expect(Either.isEither("a")).toBe(false);
+    expect(Either.isEither({ foo: "bar" })).toBe(false);
+    expect(Either.isEither([1, 2, 3])).toBe(false);
+
+    expect(Either.isEither(Either.left(5))).toBe(true);
+    expect(Either.isEither(Either.right("a"))).toBe(true);
+    expect(
+      Either.isEither(
+        Either.fromFunction(() =>
+          Math.random() > 0.5
+            ? Either.left({ foo: "bar" })
+            : Either.right([1, 2, 3])
+        )
+      )
+    ).toBe(true);
+  });
+
   test("leftward eithers can map the left side while skipping the right", () => {
     const left: Either<string, number> = Either.left("Hello");
 
