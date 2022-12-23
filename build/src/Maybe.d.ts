@@ -5,15 +5,15 @@ export declare class Maybe<Something> implements Schtate<Something> {
   private constructor();
   private isNothing;
   static isMaybe: (arg: unknown) => arg is Maybe<unknown>;
+  static nothing<T>(): Maybe<T>;
   static of<Something>(
     val: Something | Nothing | Maybe<Something> | null | undefined
   ): Maybe<Something>;
   static fromFunction<Something>(
     cb: () => Something | null | Nothing
   ): Maybe<Something>;
-  static nothing<T>(): Maybe<T>;
   something(cb: (arg: Something) => void): Maybe<Something>;
-  nothing(cb: (arg: Nothing) => void): Maybe<Something>;
+  nothing(cb: (arg: Nothing) => void): this;
   map<SomethingElse>(
     cb: (arg: Something) => SomethingElse
   ): Maybe<SomethingElse>;
