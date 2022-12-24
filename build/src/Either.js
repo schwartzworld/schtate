@@ -28,18 +28,24 @@ class Either {
         return this.whichSide === "left";
     }
     left(cb) {
-        const l = this.value;
-        if (this.isLeft(l)) {
-            return Either.left(cb(l));
-        }
-        return Either.right(this.value);
+        return this.map({
+            left: (value) => {
+                return cb(value);
+            },
+            right: () => {
+                return this.value;
+            }
+        });
     }
     right(cb) {
-        const r = this.value;
-        if (this.isRight(r)) {
-            return Either.right(cb(r));
-        }
-        return Either.left(this.value);
+        return this.map({
+            left: (value) => {
+                return this.value;
+            },
+            right: (value) => {
+                return cb(value);
+            }
+        });
     }
     map({ left: leftCb, right: rightCb, }) {
         if (this.isLeft(this.value)) {

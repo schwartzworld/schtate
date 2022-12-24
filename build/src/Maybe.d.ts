@@ -3,7 +3,7 @@ import { Schtate } from "./types/Schtate";
 export declare class Maybe<Something> implements Schtate<Something> {
   private value;
   private constructor();
-  private isNothing;
+  private static isNothing;
   static isMaybe: (arg: unknown) => arg is Maybe<unknown>;
   static nothing<T>(): Maybe<T>;
   static of<Something>(

@@ -6,13 +6,13 @@ const Either_1 = require("./Either");
 class Maybe {
     constructor(value) {
         this.value = Either_1.Either.fromFunction(() => {
-            if (this.isNothing(value)) {
+            if (Maybe.isNothing(value)) {
                 return Either_1.Either.right(value);
             }
             return Either_1.Either.left(value);
         });
     }
-    isNothing(value) {
+    static isNothing(value) {
         return value instanceof nothing_1.Nothing;
     }
     static nothing() {
