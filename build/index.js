@@ -19,3 +19,4 @@ __exportStar(require("./src/nothing"), exports);
 __exportStar(require("./src/Bool"), exports);
 __exportStar(require("./src/State"), exports);
 __exportStar(require("./src/Either"), exports);
+__exportStar(require("./src/Result"), exports);
