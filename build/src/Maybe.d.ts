@@ -12,11 +12,13 @@ export declare class Maybe<Something> implements Schtate<Something> {
   static fromFunction<Something>(
     cb: () => Something | null | Nothing
   ): Maybe<Something>;
-  something(cb: (arg: Something) => void): Maybe<Something>;
   nothing(cb: (arg: Nothing) => void): this;
   map<SomethingElse>(
     cb: (arg: Something) => SomethingElse
   ): Maybe<SomethingElse>;
+  something: <SomethingElse>(
+    cb: (arg: Something) => SomethingElse
+  ) => Maybe<SomethingElse>;
   reduce<SomethingElse>(
     cb: (arg0: SomethingElse, arg1: Something) => SomethingElse,
     starterThing: SomethingElse

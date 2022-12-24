@@ -5,6 +5,7 @@ const nothing_1 = require("./nothing");
 const Either_1 = require("./Either");
 class Maybe {
     constructor(value) {
+        this.something = this.map;
         this.value = Either_1.Either.fromFunction(() => {
             if (Maybe.isNothing(value)) {
                 return Either_1.Either.right(value);
@@ -31,10 +32,6 @@ class Maybe {
         const value = cb();
         return Maybe.of(value);
     }
-    something(cb) {
-        this.value.left((val) => cb(val));
-        return this;
-    }
     nothing(cb) {
         this.value.right(cb);
         return this;
@@ -43,7 +40,8 @@ class Maybe {
         return Maybe.fromFunction(() => {
             return this.value.match({
                 left: (val) => {
-                    return cb(val);
+                    const result = cb(val);
+                    return result;
                 },
                 right: () => {
                     return nothing_1.nothing;
@@ -52,15 +50,8 @@ class Maybe {
         });
     }
     reduce(cb, starterThing) {
-        return Maybe.fromFunction(() => {
-            return this.value.match({
-                left: (val) => {
-                    return cb(starterThing, val);
-                },
-                right: () => {
-                    return nothing_1.nothing;
-                },
-            });
+        return this.something((val) => {
+            return cb(starterThing, val);
         });
     }
     match({ something: somethingCB, nothing: nothingCB, }) {

@@ -9,12 +9,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.Result = void 0;
 const Either_1 = require("./Either");
 class Result {
     constructor(value) {
+        this.map = ({ data: dataCb, error: errorCb, }) => {
+            return new Result(this.value.map({
+                left: (value) => {
+                    return dataCb(value);
+                },
+                right: (err) => {
+                    return errorCb(err);
+                },
+            }));
+        };
         this.value = value;
-    }
-    static of() {
     }
     static error(message) {
         return new Result(Either_1.Either.right(message));
@@ -36,13 +45,31 @@ class Result {
             }
         });
     }
-}
-const mockFunc = () => __awaiter(void 0, void 0, void 0, function* () {
-    if (Math.random() > 0.5) {
-        throw new Error('Fuck you');
+    data(cb) {
+        return this.map({
+            data: cb,
+            error: (e) => e,
+        });
     }
-    return "Hello";
-});
-const main = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = Result.fromFunction(mockFunc);
-});
+    error(cb) {
+        return this.map({
+            data: (d) => d,
+            error: (err) => {
+                var _a;
+                return (_a = cb(err)) !== null && _a !== void 0 ? _a : err;
+            },
+        });
+    }
+    reduce(cb, starterThing) {
+        return this.data((val) => {
+            return cb(starterThing, val);
+        });
+    }
+    match({ data: dataCB, error: errorCb, }) {
+        return this.value.match({
+            left: dataCB,
+            right: errorCb,
+        });
+    }
+}
+exports.Result = Result;

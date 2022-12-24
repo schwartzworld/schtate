@@ -21,9 +21,6 @@ class Either {
     static right(value) {
         return Either.of(value, "right");
     }
-    isRight(value) {
-        return this.whichSide === "right";
-    }
     isLeft(value) {
         return this.whichSide === "left";
     }
@@ -34,7 +31,7 @@ class Either {
             },
             right: () => {
                 return this.value;
-            }
+            },
         });
     }
     right(cb) {
@@ -44,7 +41,7 @@ class Either {
             },
             right: (value) => {
                 return cb(value);
-            }
+            },
         });
     }
     map({ left: leftCb, right: rightCb, }) {
