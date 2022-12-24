@@ -30,32 +30,30 @@ export class Either<L, R> {
     return Either.of<L, R>(value, "right");
   }
 
-  private isRight(value: L | R): value is R {
-    return this.whichSide === "right";
-  }
-
   private isLeft(value: L | R): value is L {
     return this.whichSide === "left";
   }
 
   left<X>(cb: (arg: L) => X | R): Either<X, R> {
-    const l = this.value;
-
-    if (this.isLeft(l)) {
-      return Either.left<X, R>(cb(l) as X);
-    }
-
-    return Either.right<X, R>(this.value as R);
+    return this.map<X, R>({
+      left: (value) => {
+        return cb(value) as X;
+      },
+      right: () => {
+        return this.value as R;
+      },
+    });
   }
 
   right<Y>(cb: (arg: R) => L | Y): Either<L, Y> {
-    const r = this.value;
-
-    if (this.isRight(r)) {
-      return Either.right<L, Y>(cb(r) as Y);
-    }
-
-    return Either.left<L, Y>(this.value as L);
+    return this.map<L, Y>({
+      left: (value) => {
+        return this.value as L;
+      },
+      right: (value) => {
+        return cb(value) as Y;
+      },
+    });
   }
 
   map<T, U>({

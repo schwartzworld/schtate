@@ -7,14 +7,14 @@ export class Maybe<Something> implements Schtate<Something> {
 
   private constructor(value: Something | Nothing) {
     this.value = Either.fromFunction<Something, Nothing>(() => {
-      if (this.isNothing(value)) {
+      if (Maybe.isNothing(value)) {
         return Either.right<Something, Nothing>(value);
       }
       return Either.left<Something, Nothing>(value);
     });
   }
 
-  private isNothing(value: unknown): value is Nothing {
+  private static isNothing(value: unknown): value is Nothing {
     return value instanceof Nothing;
   }
 
@@ -43,11 +43,6 @@ export class Maybe<Something> implements Schtate<Something> {
     return Maybe.of(value);
   }
 
-  something(cb: (arg: Something) => void): Maybe<Something> {
-    this.value.left((val) => cb(val));
-    return this;
-  }
-
   nothing(cb: (arg: Nothing) => void) {
     this.value.right(cb);
     return this;
@@ -59,7 +54,8 @@ export class Maybe<Something> implements Schtate<Something> {
     return Maybe.fromFunction<SomethingElse>(() => {
       return this.value.match({
         left: (val) => {
-          return cb(val);
+          const result: SomethingElse = cb(val);
+          return result;
         },
         right: () => {
           return nothing;
@@ -68,19 +64,14 @@ export class Maybe<Something> implements Schtate<Something> {
     });
   }
 
+  something = this.map;
+
   reduce<SomethingElse>(
     cb: (arg0: SomethingElse, arg1: Something) => SomethingElse,
     starterThing: SomethingElse
   ): Maybe<SomethingElse> {
-    return Maybe.fromFunction(() => {
-      return this.value.match({
-        left: (val) => {
-          return cb(starterThing, val);
-        },
-        right: () => {
-          return nothing;
-        },
-      });
+    return this.something((val) => {
+      return cb(starterThing, val);
     });
   }
 

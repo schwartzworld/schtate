@@ -7,7 +7,6 @@ export declare class Either<L, R> {
   static fromFunction<L, R>(cb: () => Either<L, R>): Either<L, R>;
   static left<L, R>(value: L): Either<L, R>;
   static right<L, R>(value: R): Either<L, R>;
-  private isRight;
   private isLeft;
   left<X>(cb: (arg: L) => X | R): Either<X, R>;
   right<Y>(cb: (arg: R) => L | Y): Either<L, Y>;

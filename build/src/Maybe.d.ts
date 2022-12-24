@@ -3,7 +3,7 @@ import { Schtate } from "./types/Schtate";
 export declare class Maybe<Something> implements Schtate<Something> {
   private value;
   private constructor();
-  private isNothing;
+  private static isNothing;
   static isMaybe: (arg: unknown) => arg is Maybe<unknown>;
   static nothing<T>(): Maybe<T>;
   static of<Something>(
@@ -12,11 +12,13 @@ export declare class Maybe<Something> implements Schtate<Something> {
   static fromFunction<Something>(
     cb: () => Something | null | Nothing
   ): Maybe<Something>;
-  something(cb: (arg: Something) => void): Maybe<Something>;
   nothing(cb: (arg: Nothing) => void): this;
   map<SomethingElse>(
     cb: (arg: Something) => SomethingElse
   ): Maybe<SomethingElse>;
+  something: <SomethingElse>(
+    cb: (arg: Something) => SomethingElse
+  ) => Maybe<SomethingElse>;
   reduce<SomethingElse>(
     cb: (arg0: SomethingElse, arg1: Something) => SomethingElse,
     starterThing: SomethingElse
