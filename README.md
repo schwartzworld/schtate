@@ -309,5 +309,26 @@ const unwrapped: string | number = x.match({
 })
 ```
 
+### Result
+
+`Result` is a convenient abstraction over `Either<Data, Error>`. Instead of `.left()` and `.right()` you can use
+`.data()` and `.error()`. Otherwise, the API should look pretty familiar to the other data types in this library.
+
+```typescript
+const res: Response<MyAPIType>= await Result.fromFunction(async () => {
+    const response = await fetch('http://example.com');
+    const data: MyAPIType = await response.json();
+});
+
+const userName: string = res.data((raw: MyAPIType) => {
+  return raw.user.firstName + raw.user.lastName;  
+}).error((e) => {
+    console.error(e);
+}).match({
+    data: (name: string) => name,
+    error: () => 'User not logged in'
+});
+```
+
 
 
