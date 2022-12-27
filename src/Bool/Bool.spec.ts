@@ -104,5 +104,62 @@ describe("Bool tests", () => {
       });
       expect(shouldBeBar).toBe("bar");
     });
+
+    it("can compound values", () => {
+      expect.assertions(6);
+      Bool.of(false)
+        .or("something")
+        .true(() => {
+          expect("this to pass").toBeTruthy();
+        })
+        .false(() => {
+          expect("this should not pass").toBe("failure");
+        });
+
+      Bool.of(false)
+        .or(null)
+        .true(() => {
+          expect("this should not pass").toBe("failure");
+        })
+        .false(() => {
+          expect("this to pass").toBeTruthy();
+        });
+
+      Bool.of(true)
+        .or(null)
+        .true(() => {
+          expect("this to pass").toBeTruthy();
+        })
+        .false(() => {
+          expect("this should not pass").toBe("failure");
+        });
+
+      Bool.of(true)
+        .and(null)
+        .true(() => {
+          expect("this should not pass").toBe("failure");
+        })
+        .false(() => {
+          expect("this to pass").toBeTruthy();
+        });
+
+      Bool.of(false)
+        .and(true)
+        .true(() => {
+          expect("this should not pass").toBe("failure");
+        })
+        .false(() => {
+          expect("this to pass").toBeTruthy();
+        });
+
+      Bool.of(true)
+        .and(true)
+        .true(() => {
+          expect("this to pass").toBeTruthy();
+        })
+        .false(() => {
+          expect("this should not pass").toBe("failure");
+        });
+    });
   });
 });
