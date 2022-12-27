@@ -114,4 +114,5 @@ const UserHeader: FC<{ user: Either<LoggedInUser, LoggedOutUser> }> = ({ user })
             </UserHeader>
         }   
     })
+};
 ```
