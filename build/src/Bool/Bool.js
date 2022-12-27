@@ -24,6 +24,16 @@ class Bool {
         const v = cb(this.value);
         return Bool.of(v);
     }
+    and(value) {
+        return this.map(v => {
+            return Boolean(value) && v;
+        });
+    }
+    or(value) {
+        return this.map(v => {
+            return Boolean(value) || v;
+        });
+    }
     true(cb) {
         if (this.value) {
             cb();

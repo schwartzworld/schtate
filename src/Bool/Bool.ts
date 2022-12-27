@@ -31,6 +31,17 @@ export class Bool<T extends boolean> {
     return Bool.of(v);
   }
 
+  and(value: unknown) {
+    return this.map((v) => {
+      return Boolean(value) && v;
+    });
+  }
+  or(value: unknown) {
+    return this.map((v) => {
+      return Boolean(value) || v;
+    });
+  }
+
   true(cb: () => void) {
     if (this.value) {
       cb();

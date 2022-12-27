@@ -6,6 +6,8 @@ export declare class Bool<T extends boolean> {
   static false(): Bool<false>;
   static true(): Bool<true>;
   map<U extends boolean>(cb: (arg: boolean) => boolean): Bool<U>;
+  and(value: unknown): Bool<boolean>;
+  or(value: unknown): Bool<boolean>;
   true(cb: () => void): this;
   false(cb: () => void): this;
   match<T, U>({
