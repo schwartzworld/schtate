@@ -1,17 +1,22 @@
+import {State} from "./State";
+
 export class Either<L, R> {
-  private value: L | R;
+  private value: State<L | R>;
   private whichSide: "right" | "left";
 
-  private constructor(value: L | R, whichSide: "right" | "left") {
+  private constructor(value: State<L | R>, whichSide: "right" | "left") {
     this.value = value;
     this.whichSide = whichSide;
   }
 
   private static of<L, R>(
-    val: L | R,
+    val: L | R | State<L> | State<R>,
     whichSide: "right" | "left"
   ): Either<L, R> {
-    return new Either<L, R>(val, whichSide);
+    if (State.isState(val)) {
+      return new Either<L, R>(val, whichSide)
+    }
+    return new Either<L, R>(State.of(val), whichSide);
   }
 
   static isEither(val: unknown): val is Either<unknown, unknown> {
@@ -22,15 +27,15 @@ export class Either<L, R> {
     return cb();
   }
 
-  static left<L, R>(value: L) {
+  static left<L, R>(value: L | State<L>) {
     return Either.of<L, R>(value, "left");
   }
 
-  static right<L, R>(value: R) {
+  static right<L, R>(value: R | State<R>) {
     return Either.of<L, R>(value, "right");
   }
 
-  private isLeft(value: L | R): value is L {
+  private isLeft(value: State<L | R>): value is State<L> {
     return this.whichSide === "left";
   }
 
@@ -39,16 +44,14 @@ export class Either<L, R> {
       left: (value) => {
         return cb(value) as X;
       },
-      right: () => {
-        return this.value as R;
-      },
+      right: (v) => v,
     });
   }
 
   right<Y>(cb: (arg: R) => L | Y): Either<L, Y> {
     return this.map<L, Y>({
-      left: (value) => {
-        return this.value as L;
+      left: (l) => {
+        return l;
       },
       right: (value) => {
         return cb(value) as Y;
@@ -62,11 +65,17 @@ export class Either<L, R> {
   }: {
     left: (arg: L) => T;
     right: (arg: R) => U;
-  }) {
+  }): Either<T, U> {
     if (this.isLeft(this.value)) {
-      return Either.left<T, U>(leftCb(this.value));
+      const mappedValue: State<T> = this.value.map((val: L): T => {
+        return leftCb(val);
+      });
+      return Either.left(mappedValue);
     }
-    return Either.right<T, U>(rightCb(this.value));
+    const mappedValue: State<U> = this.value.map((val): U => {
+      return rightCb(val as R);
+    });
+    return Either.right(mappedValue);
   }
 
   match<T, U>({
@@ -77,8 +86,10 @@ export class Either<L, R> {
     right: (arg: R) => U;
   }) {
     if (this.isLeft(this.value)) {
-      return leftCb(this.value);
+      return this.value.match(leftCb);
     }
-    return rightCb(this.value);
+    return this.value.match((r) => {
+      return rightCb(r as R);
+    });
   }
 }
