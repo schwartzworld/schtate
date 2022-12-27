@@ -1,4 +1,4 @@
-import { Either } from "./Either";
+import { Either } from "../Either/Either";
 
 type Error = string;
 

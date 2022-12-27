@@ -1,6 +1,6 @@
 import { nothing, Nothing } from "./nothing";
-import { Schtate } from "./types/Schtate";
-import { Either } from "./Either";
+import { Schtate } from "../types/Schtate";
+import { Either } from "../Either/Either";
 
 export class Maybe<Something> implements Schtate<Something> {
   private value: Either<Something, Nothing>;

@@ -1,4 +1,4 @@
-import { Either } from "./Either";
+import { Either } from "../Either/Either";
 declare type Error = string;
 export declare class Result<Data> {
   private value;

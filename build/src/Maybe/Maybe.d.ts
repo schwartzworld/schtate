@@ -1,5 +1,5 @@
 import { Nothing } from "./nothing";
-import { Schtate } from "./types/Schtate";
+import { Schtate } from "../types/Schtate";
 export declare class Maybe<Something> implements Schtate<Something> {
   private value;
   private constructor();

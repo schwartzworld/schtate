@@ -1,5 +1,5 @@
-import { Maybe } from "./Maybe";
-import { nothing } from "./nothing";
+import { Maybe } from "../Maybe/Maybe";
+import { nothing } from "../Maybe/nothing";
 import { State } from "./State";
 
 describe("State Monad Tests", () => {

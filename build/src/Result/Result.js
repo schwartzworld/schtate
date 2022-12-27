@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Result = void 0;
-const Either_1 = require("./Either");
+const Either_1 = require("../Either/Either");
 class Result {
     constructor(value) {
         this.map = ({ data: dataCb, error: errorCb, }) => {
