@@ -1,5 +1,5 @@
-import { nothing, Nothing } from "./nothing";
-import { Schtate } from "./types/Schtate";
+import { nothing, Nothing } from "../Maybe/nothing";
+import { Schtate } from "../types/Schtate";
 
 export class Bool<T extends boolean> {
   private value: boolean;

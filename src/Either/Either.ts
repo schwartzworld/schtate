@@ -1,4 +1,4 @@
-import {State} from "./State";
+import { State } from "../State/State";
 
 export class Either<L, R> {
   private value: State<L | R>;
@@ -14,7 +14,7 @@ export class Either<L, R> {
     whichSide: "right" | "left"
   ): Either<L, R> {
     if (State.isState(val)) {
-      return new Either<L, R>(val, whichSide)
+      return new Either<L, R>(val, whichSide);
     }
     return new Either<L, R>(State.of(val), whichSide);
   }

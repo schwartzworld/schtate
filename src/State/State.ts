@@ -1,4 +1,4 @@
-import { Schtate } from "./types/Schtate";
+import { Schtate } from "../types/Schtate";
 
 export class State<Something> implements Schtate<Something> {
   private value: Something;

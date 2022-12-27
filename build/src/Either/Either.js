@@ -1,13 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Either = void 0;
+const State_1 = require("../State/State");
 class Either {
     constructor(value, whichSide) {
         this.value = value;
         this.whichSide = whichSide;
     }
     static of(val, whichSide) {
-        return new Either(val, whichSide);
+        if (State_1.State.isState(val)) {
+            return new Either(val, whichSide);
+        }
+        return new Either(State_1.State.of(val), whichSide);
     }
     static isEither(val) {
         return val instanceof Either;
@@ -29,15 +33,13 @@ class Either {
             left: (value) => {
                 return cb(value);
             },
-            right: () => {
-                return this.value;
-            },
+            right: (v) => v,
         });
     }
     right(cb) {
         return this.map({
-            left: (value) => {
-                return this.value;
+            left: (l) => {
+                return l;
             },
             right: (value) => {
                 return cb(value);
@@ -46,15 +48,23 @@ class Either {
     }
     map({ left: leftCb, right: rightCb, }) {
         if (this.isLeft(this.value)) {
-            return Either.left(leftCb(this.value));
+            const mappedValue = this.value.map((val) => {
+                return leftCb(val);
+            });
+            return Either.left(mappedValue);
         }
-        return Either.right(rightCb(this.value));
+        const mappedValue = this.value.map((val) => {
+            return rightCb(val);
+        });
+        return Either.right(mappedValue);
     }
     match({ left: leftCb, right: rightCb, }) {
         if (this.isLeft(this.value)) {
-            return leftCb(this.value);
+            return this.value.match(leftCb);
         }
-        return rightCb(this.value);
+        return this.value.match((r) => {
+            return rightCb(r);
+        });
     }
 }
 exports.Either = Either;

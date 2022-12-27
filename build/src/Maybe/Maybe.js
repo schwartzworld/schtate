@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Maybe = void 0;
 const nothing_1 = require("./nothing");
-const Either_1 = require("./Either");
+const Either_1 = require("../Either/Either");
 class Maybe {
     constructor(value) {
         this.something = this.map;
