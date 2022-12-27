@@ -1,7 +1,7 @@
 ### Either
 #### I really don't want you to write `if` statements
 
-Either an algebraic data structure for describing sum types. This is simpler than it sounds.
+Either is an algebraic data structure for describing sum types. This is simpler than it sounds.
 
 You will reach for `Either` when your data is one of two distinct types. Either it's
 a dog or a cat. Either it's a foo or a bar. Either it's a logged-in user or an anonymous one. This is
