@@ -25,12 +25,12 @@ class Bool {
         return Bool.of(v);
     }
     and(value) {
-        return this.map(v => {
+        return this.map((v) => {
             return Boolean(value) && v;
         });
     }
     or(value) {
-        return this.map(v => {
+        return this.map((v) => {
             return Boolean(value) || v;
         });
     }

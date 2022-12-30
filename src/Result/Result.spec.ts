@@ -129,4 +129,36 @@ describe("Result tests", () => {
     });
     expect(unwrappedErr).toBe("Fool");
   });
+
+  it("can return a result of a maybe", async () => {
+    const res = await Result.ofMaybe(() => "something");
+    res.data((d) => {
+      d.nothing(() => {
+        expect("this").toBe("not to be called");
+      }).something((something) => {
+        expect(something).toBe("something");
+      });
+    });
+
+    const nothing = await Result.ofMaybe(() => null);
+    nothing.data((d) => {
+      d.nothing((n) => {
+        expect(n.isNothing).toBe(true);
+      }).something((something) => {
+        expect("this").toBe("not to be called");
+      });
+    });
+    const err = await Result.ofMaybe(() => {
+      throw new Error("this did not work");
+      return "this";
+    });
+    err
+      .data((d) => {
+        expect(d).toBe("not to be called");
+        return d;
+      })
+      .error((err) => {
+        expect(err).toEqual(expect.stringContaining("this did not work"));
+      });
+  });
 });
