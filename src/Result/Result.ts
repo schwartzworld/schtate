@@ -1,4 +1,5 @@
 import { Either } from "../Either/Either";
+import { Maybe } from "../Maybe/Maybe";
 
 type Error = string;
 
@@ -27,6 +28,11 @@ export class Result<Data> {
     } catch (e) {
       return Result.error<T>(String(e));
     }
+  }
+
+  static async ofMaybe<T>(cb: () => Promise<T> | T) {
+    const res = await Result.fromFunction(cb);
+    return res.data((d) => Maybe.of(d));
   }
 
   map = <U>({

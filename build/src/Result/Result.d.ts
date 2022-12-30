@@ -1,4 +1,5 @@
 import { Either } from "../Either/Either";
+import { Maybe } from "../Maybe/Maybe";
 declare type Error = string;
 export declare class Result<Data> {
   private value;
@@ -7,6 +8,7 @@ export declare class Result<Data> {
   static data<T>(data: T): Result<T>;
   static isResult(val: unknown): val is Result<unknown>;
   static fromFunction<T>(cb: () => Promise<T> | T): Promise<Result<T>>;
+  static ofMaybe<T>(cb: () => Promise<T> | T): Promise<Result<Maybe<T>>>;
   map: <U>({
     data: dataCb,
     error: errorCb,

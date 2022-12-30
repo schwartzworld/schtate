@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Result = void 0;
 const Either_1 = require("../Either/Either");
+const Maybe_1 = require("../Maybe/Maybe");
 class Result {
     constructor(value) {
         this.map = ({ data: dataCb, error: errorCb, }) => {
@@ -43,6 +44,12 @@ class Result {
             catch (e) {
                 return Result.error(String(e));
             }
+        });
+    }
+    static ofMaybe(cb) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const res = yield Result.fromFunction(cb);
+            return res.data(d => Maybe_1.Maybe.of(d));
         });
     }
     data(cb) {
