@@ -24,6 +24,7 @@ class Result {
                 },
             }));
         };
+        this.get = (args) => this.value.get(args);
         this.value = value;
     }
     static error(message) {
@@ -35,7 +36,7 @@ class Result {
     static isResult(val) {
         return val instanceof Result;
     }
-    static fromFunction(cb) {
+    static of(cb) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const value = yield cb();
@@ -46,10 +47,15 @@ class Result {
             }
         });
     }
+    static fromFunction(cb) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return cb(Result.data, Result.error);
+        });
+    }
     static ofMaybe(cb) {
         return __awaiter(this, void 0, void 0, function* () {
-            const res = yield Result.fromFunction(cb);
-            return res.data(d => Maybe_1.Maybe.of(d));
+            const res = yield Result.of(cb);
+            return res.data((d) => Maybe_1.Maybe.of(d));
         });
     }
     data(cb) {

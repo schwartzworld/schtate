@@ -1,4 +1,5 @@
 import { Either } from "./Either";
+import { Maybe } from "../Maybe/Maybe";
 
 describe("Either Monad Tests", () => {
   it("can create a Left or Right either", () => {
@@ -25,7 +26,7 @@ describe("Either Monad Tests", () => {
     expect(Either.isEither(Either.right("a"))).toBe(true);
     expect(
       Either.isEither(
-        Either.fromFunction(() =>
+        Either.fromFunction<{ foo: "bar" }, number[]>(() =>
           Math.random() > 0.5
             ? Either.left({ foo: "bar" })
             : Either.right([1, 2, 3])
@@ -158,5 +159,55 @@ describe("Either Monad Tests", () => {
 
     expect(irvAge).not.toBeNull();
     expect(irvAge).toBe(Irving.age);
+  });
+  describe("has a getter function that returns a maybe", () => {
+    test("rightward", () => {
+      expect.assertions(2);
+      const rrr = Either.fromFunction<{ name: string }, { foo: string }>(
+        (left, right) => {
+          return right({ foo: "bar" });
+        }
+      );
+      const foo = rrr.get("foo");
+
+      foo.nothing((val) => {
+        expect(val).toBe("this was never called");
+      });
+      foo.something((val) => {
+        expect(val).toBe("bar");
+      });
+
+      const name = rrr.get("name");
+      name.nothing(() => {
+        expect("this").toBe("this");
+      });
+      name.something((val) => {
+        expect(val).toBe("not called");
+      });
+    });
+    test("leftward", () => {
+      expect.assertions(2);
+      const lll = Either.fromFunction<{ name: string }, { foo: string }>(
+        (left, right) => {
+          return left({ name: "roseanne" });
+        }
+      );
+      const foo = lll.get("foo");
+
+      foo.nothing((val) => {
+        expect("passed").toBe("passed");
+      });
+      foo.something((val) => {
+        expect(val).toBe("this was never called");
+      });
+
+      const name = lll.get("name");
+      name.something((val) => {
+        expect(val).toBe("roseanne");
+      });
+      name.nothing((val) => {
+        expect(val).toBe("not called");
+      });
+    });
   });
 });

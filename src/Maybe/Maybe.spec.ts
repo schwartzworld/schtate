@@ -174,4 +174,46 @@ describe("Maybe Monad Tests", () => {
         expect(value.foo).toBe("bar");
       });
   });
+
+  type M = {
+    foo: string;
+    chicken: string;
+  };
+
+  const m = Maybe.of<M>({
+    foo: "bar",
+    chicken: "nuggets",
+  });
+  const n = Maybe.nothing<M>();
+
+  it("has a getter function that returns a Maybe", () => {
+    expect.assertions(2);
+    m.get("chicken").something((val: string) => {
+      expect(val).toBe("nuggets");
+    });
+
+    n.get("chicken").nothing((val) => {
+      expect(val.isNothing).toBe(true);
+    });
+  });
+
+  it("can be converted to an Either", () => {
+    expect.assertions(2);
+    m.toEither().left((val) => {
+      expect(val.foo).toBe("bar");
+    });
+    n.toEither().right((val) => {
+      expect(val).toBe(null);
+    });
+  });
+
+  it("can be converted to a Bool", () => {
+    expect.assertions(2);
+    m.toBool().true(() => {
+      expect("true branch is called").toBeTruthy();
+    });
+    n.toBool().false(() => {
+      expect("false branch is called").toBeTruthy();
+    });
+  });
 });

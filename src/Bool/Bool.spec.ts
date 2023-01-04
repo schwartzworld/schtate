@@ -162,4 +162,32 @@ describe("Bool tests", () => {
         });
     });
   });
+
+  it("can be converted to an Either", () => {
+    expect.assertions(2);
+    const t = Bool.true();
+    const f = Bool.false();
+
+    t.toEither().left((val) => {
+      expect(val).toBe(true);
+    });
+
+    f.toEither().right((val) => {
+      expect(val).toBe(false);
+    });
+  });
+
+  it("can be converted to a Maybe", () => {
+    expect.assertions(2);
+    const t = Bool.true();
+    const f = Bool.false();
+
+    t.toMaybe().something((val) => {
+      expect(val).toBe(true);
+    });
+
+    f.toMaybe().nothing((val) => {
+      expect(val.isNothing).toBe(true);
+    });
+  });
 });

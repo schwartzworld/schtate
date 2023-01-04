@@ -1,4 +1,5 @@
 import { State } from "../State/State";
+import { Maybe } from "../Maybe/Maybe";
 
 export class Either<L, R> {
   private value: State<L | R>;
@@ -16,15 +17,17 @@ export class Either<L, R> {
     if (State.isState(val)) {
       return new Either<L, R>(val, whichSide);
     }
-    return new Either<L, R>(State.of(val), whichSide);
+    return new Either<L, R>(State.of(val as L | R), whichSide);
   }
 
   static isEither(val: unknown): val is Either<unknown, unknown> {
     return val instanceof Either;
   }
 
-  static fromFunction<L, R>(cb: () => Either<L, R>) {
-    return cb();
+  static fromFunction<L, R>(
+    cb: (left: typeof Either.left, right: typeof Either.right) => Either<L, R>
+  ) {
+    return cb(Either.left, Either.right);
   }
 
   static left<L, R>(value: L | State<L>) {
@@ -35,7 +38,9 @@ export class Either<L, R> {
     return Either.of<L, R>(value, "right");
   }
 
+  // @ts-ignore
   private isLeft(value: State<L | R>): value is State<L> {
+    if (this.whichSide === "right") return false;
     return this.whichSide === "left";
   }
 
@@ -90,6 +95,19 @@ export class Either<L, R> {
     }
     return this.value.match((r) => {
       return rightCb(r as R);
+    });
+  }
+
+  get(property: keyof (L & R)) {
+    return this.match({
+      left: (left) => {
+        const l = left[property as keyof L];
+        return Maybe.of<typeof l>(l);
+      },
+      right: (right) => {
+        const r = right[property as keyof R];
+        return Maybe.of<typeof r>(r);
+      },
     });
   }
 }

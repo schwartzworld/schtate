@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Either = void 0;
 const State_1 = require("../State/State");
+const Maybe_1 = require("../Maybe/Maybe");
 class Either {
     constructor(value, whichSide) {
         this.value = value;
@@ -17,7 +18,7 @@ class Either {
         return val instanceof Either;
     }
     static fromFunction(cb) {
-        return cb();
+        return cb(Either.left, Either.right);
     }
     static left(value) {
         return Either.of(value, "left");
@@ -25,7 +26,10 @@ class Either {
     static right(value) {
         return Either.of(value, "right");
     }
+    // @ts-ignore
     isLeft(value) {
+        if (this.whichSide === "right")
+            return false;
         return this.whichSide === "left";
     }
     left(cb) {
@@ -64,6 +68,18 @@ class Either {
         }
         return this.value.match((r) => {
             return rightCb(r);
+        });
+    }
+    get(property) {
+        return this.match({
+            left: (left) => {
+                const l = left[property];
+                return Maybe_1.Maybe.of(l);
+            },
+            right: (right) => {
+                const r = right[property];
+                return Maybe_1.Maybe.of(r);
+            },
         });
     }
 }
