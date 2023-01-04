@@ -30,7 +30,7 @@ export class Result<Data> {
     }
   }
 
-  static fromFunction<T>(
+  static async fromFunction<T>(
     cb: (
       data: typeof Result.data,
       error: typeof Result.error
@@ -100,4 +100,5 @@ export class Result<Data> {
       right: errorCb,
     });
   }
+  get = (args: keyof Data) => this.value.get(args);
 }

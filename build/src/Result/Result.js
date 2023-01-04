@@ -24,6 +24,7 @@ class Result {
                 },
             }));
         };
+        this.get = (args) => this.value.get(args);
         this.value = value;
     }
     static error(message) {
@@ -47,7 +48,9 @@ class Result {
         });
     }
     static fromFunction(cb) {
-        return cb(Result.data, Result.error);
+        return __awaiter(this, void 0, void 0, function* () {
+            return cb(Result.data, Result.error);
+        });
     }
     static ofMaybe(cb) {
         return __awaiter(this, void 0, void 0, function* () {

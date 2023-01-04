@@ -171,4 +171,19 @@ describe("Result tests", () => {
       expect(five).toBe(five);
     });
   });
+  it("has a getter that returns a maybe", async () => {
+    const res: Result<{ foo: string }> = await Result.fromFunction(
+      (data, error) => {
+        return data({ foo: "bar" });
+      }
+    );
+    res.get("foo").something((val) => expect(val).toBe("bar"));
+
+    const err = await Result.fromFunction<{ foo: string }>((_, error) => {
+      return error("something went wrong");
+    });
+    err.get("foo").nothing((val) => {
+      expect(val.isNothing).toBe(true);
+    });
+  });
 });
