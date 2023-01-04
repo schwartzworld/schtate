@@ -1,4 +1,5 @@
 import { Schtate } from "../types/Schtate";
+import { Maybe } from "../Maybe/Maybe";
 
 export class State<Something> implements Schtate<Something> {
   private value: Something;
@@ -7,7 +8,7 @@ export class State<Something> implements Schtate<Something> {
     this.value = value;
   }
 
-  static isState = (arg: unknown): arg is State<unknown> => {
+  static isState = (arg: any): arg is State<any> => {
     return arg instanceof State;
   };
 

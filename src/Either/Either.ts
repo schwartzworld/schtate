@@ -17,7 +17,7 @@ export class Either<L, R> {
     if (State.isState(val)) {
       return new Either<L, R>(val, whichSide);
     }
-    return new Either<L, R>(State.of(val), whichSide);
+    return new Either<L, R>(State.of(val as L | R), whichSide);
   }
 
   static isEither(val: unknown): val is Either<unknown, unknown> {
@@ -38,7 +38,9 @@ export class Either<L, R> {
     return Either.of<L, R>(value, "right");
   }
 
+  // @ts-ignore
   private isLeft(value: State<L | R>): value is State<L> {
+    if (this.whichSide === "right") return false;
     return this.whichSide === "left";
   }
 

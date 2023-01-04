@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Maybe = void 0;
 const nothing_1 = require("./nothing");
 const Either_1 = require("../Either/Either");
+const Bool_1 = require("../Bool/Bool");
 class Maybe {
     constructor(value) {
         this.something = this.map;
@@ -63,6 +64,26 @@ class Maybe {
     get(property) {
         return this.map((val) => {
             return val[property];
+        });
+    }
+    toEither() {
+        return this.match({
+            something: (val) => {
+                return Either_1.Either.left(val);
+            },
+            nothing: () => {
+                return Either_1.Either.right(null);
+            },
+        });
+    }
+    toBool() {
+        return this.match({
+            something: (val) => {
+                return Bool_1.Bool.true();
+            },
+            nothing: () => {
+                return Bool_1.Bool.false();
+            },
         });
     }
 }

@@ -100,5 +100,6 @@ export class Result<Data> {
       right: errorCb,
     });
   }
+
   get = (args: keyof Data) => this.value.get(args);
 }

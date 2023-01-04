@@ -1,6 +1,8 @@
 import { nothing, Nothing } from "./nothing";
 import { Schtate } from "../types/Schtate";
 import { Either } from "../Either/Either";
+import { State } from "../State/State";
+import { Bool } from "../Bool/Bool";
 
 export class Maybe<Something> implements Schtate<Something> {
   private value: Either<Something, Nothing>;
@@ -96,6 +98,28 @@ export class Maybe<Something> implements Schtate<Something> {
   get(property: keyof Something): Maybe<Something[typeof property]> {
     return this.map((val) => {
       return val[property];
+    });
+  }
+
+  toEither(): Either<Something, null> {
+    return this.match({
+      something: (val) => {
+        return Either.left(val);
+      },
+      nothing: () => {
+        return Either.right(null);
+      },
+    });
+  }
+
+  toBool(): Bool<boolean> {
+    return this.match({
+      something: (val) => {
+        return Bool.true();
+      },
+      nothing: () => {
+        return Bool.false();
+      },
     });
   }
 }

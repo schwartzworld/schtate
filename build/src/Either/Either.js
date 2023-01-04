@@ -26,7 +26,10 @@ class Either {
     static right(value) {
         return Either.of(value, "right");
     }
+    // @ts-ignore
     isLeft(value) {
+        if (this.whichSide === "right")
+            return false;
         return this.whichSide === "left";
     }
     left(cb) {

@@ -1,5 +1,7 @@
 import { nothing, Nothing } from "../Maybe/nothing";
 import { Schtate } from "../types/Schtate";
+import { Either } from "../Either/Either";
+import { Maybe } from "../Maybe/Maybe";
 
 export class Bool<T extends boolean> {
   private value: boolean;
@@ -67,5 +69,27 @@ export class Bool<T extends boolean> {
       return falseCB();
     }
     return trueCB();
+  }
+
+  toEither(): Either<true, false> {
+    return this.match({
+      true: () => {
+        return Either.left(true);
+      },
+      false: () => {
+        return Either.right(false);
+      },
+    });
+  }
+
+  toMaybe(): Maybe<boolean> {
+    return this.match({
+      true: () => {
+        return Maybe.of<boolean>(true);
+      },
+      false: () => {
+        return Maybe.nothing<boolean>();
+      },
+    });
   }
 }
