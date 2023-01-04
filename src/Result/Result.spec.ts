@@ -5,7 +5,7 @@ describe("Result tests", () => {
   it("should create a Result from an async function", async () => {
     expect.assertions(1);
 
-    const res: Result<number> = await Result.fromFunction(() => Math.random());
+    const res: Result<number> = await Result.of(() => Math.random());
     res.data((num) => {
       expect(typeof num).toBe("number");
     });
@@ -15,8 +15,9 @@ describe("Result tests", () => {
     expect.assertions(1);
 
     const err = "This Failed";
-    const res: Result<number> = await Result.fromFunction(() => {
+    const res: Result<number> = await Result.of(() => {
       throw new Error(err);
+      return 5;
     });
     res.error((e) => {
       expect(e).toBe(new Error(err).toString());
@@ -161,4 +162,13 @@ describe("Result tests", () => {
         expect(err).toEqual(expect.stringContaining("this did not work"));
       });
   });
+
+  it('has a convenience function for creating without accessing static methods', async () => {
+    const res: Result<number> = await Result.fromFunction((data, error) => {
+      return data(5);
+    });
+    res.data(five => {
+      expect(five).toBe(five);
+    })
+  })
 });

@@ -38,8 +38,8 @@ export class Maybe<Something> implements Schtate<Something> {
     return new Maybe<Something>(val as Something);
   }
 
-  static fromFunction<Something>(cb: () => Something | null | Nothing) {
-    const value = cb();
+  static fromFunction<Something>(cb: (something: typeof Maybe.of, nothing: typeof Maybe.nothing) => Something | null | Nothing) {
+    const value = cb(Maybe.of, Maybe.nothing);
     return Maybe.of(value);
   }
 
@@ -85,6 +85,12 @@ export class Maybe<Something> implements Schtate<Something> {
     return this.value.match({
       left: somethingCB,
       right: nothingCB,
+    });
+  }
+
+  get(property: keyof Something): Maybe<Something[typeof property]> {
+    return this.map((val) => {
+      return val[property]
     });
   }
 }

@@ -21,7 +21,7 @@ export class Result<Data> {
     return val instanceof Result;
   }
 
-  static async fromFunction<T>(cb: () => Promise<T> | T) {
+  static async of<T>(cb: () => Promise<T> | T) {
     try {
       const value = await cb();
       return Result.data<T>(value);
@@ -30,8 +30,12 @@ export class Result<Data> {
     }
   }
 
+  static fromFunction<T>(cb: (data: typeof Result.data, error: typeof Result.error) => Promise<Result<T>> | Result<T>) {
+      return cb(Result.data, Result.error);
+  }
+
   static async ofMaybe<T>(cb: () => Promise<T> | T) {
-    const res = await Result.fromFunction(cb);
+    const res = await Result.of(cb);
     return res.data((d) => Maybe.of(d));
   }
 

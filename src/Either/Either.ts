@@ -1,4 +1,5 @@
 import { State } from "../State/State";
+import {Maybe} from "../Maybe/Maybe";
 
 export class Either<L, R> {
   private value: State<L | R>;
@@ -23,8 +24,8 @@ export class Either<L, R> {
     return val instanceof Either;
   }
 
-  static fromFunction<L, R>(cb: () => Either<L, R>) {
-    return cb();
+  static fromFunction<L, R>(cb: (left: typeof Either.left, right: typeof Either.right) => Either<L, R>) {
+    return cb(Either.left, Either.right);
   }
 
   static left<L, R>(value: L | State<L>) {
@@ -91,5 +92,18 @@ export class Either<L, R> {
     return this.value.match((r) => {
       return rightCb(r as R);
     });
+  }
+
+  get(property: keyof (L & R)) {
+    return this.match({
+      left: (left) => {
+        const l = left[property as keyof L]
+        return Maybe.of<typeof l>(l);
+      },
+      right: (right) => {
+        const r = right[property as keyof R]
+        return Maybe.of<typeof r>(r);
+      }
+    })
   }
 }
