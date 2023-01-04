@@ -163,12 +163,12 @@ describe("Result tests", () => {
       });
   });
 
-  it('has a convenience function for creating without accessing static methods', async () => {
+  it("has a convenience function for creating without accessing static methods", async () => {
     const res: Result<number> = await Result.fromFunction((data, error) => {
       return data(5);
     });
-    res.data(five => {
+    res.data((five) => {
       expect(five).toBe(five);
-    })
-  })
+    });
+  });
 });

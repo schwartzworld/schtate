@@ -29,7 +29,7 @@ class Maybe {
         return new Maybe(val);
     }
     static fromFunction(cb) {
-        const value = cb();
+        const value = cb(Maybe.of, Maybe.nothing);
         return Maybe.of(value);
     }
     nothing(cb) {
@@ -58,6 +58,11 @@ class Maybe {
         return this.value.match({
             left: somethingCB,
             right: nothingCB,
+        });
+    }
+    get(property) {
+        return this.map((val) => {
+            return val[property];
         });
     }
 }
