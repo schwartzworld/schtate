@@ -78,7 +78,7 @@ class Maybe {
     }
     toBool() {
         return this.match({
-            something: (val) => {
+            something: () => {
                 return Bool_1.Bool.true();
             },
             nothing: () => {

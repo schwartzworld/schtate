@@ -38,13 +38,13 @@ class Bool {
     }
     true(cb) {
         if (this.value) {
-            cb();
+            cb(this.value);
         }
         return this;
     }
     false(cb) {
         if (!this.value) {
-            cb();
+            cb(this.value);
         }
         return this;
     }

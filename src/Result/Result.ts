@@ -70,7 +70,7 @@ export class Result<Data> {
     });
   }
 
-  error<U>(cb: (value: Error) => Error | void) {
+  error(cb: (value: Error) => Error | void) {
     return this.map({
       data: (d) => d,
       error: (err) => {

@@ -20,5 +20,5 @@ export declare class Maybe<Something> implements Schtate<Something> {
     }): T | U;
     get(property: keyof Something): Maybe<Something[typeof property]>;
     toEither(): Either<Something, null>;
-    toBool(): Bool<boolean>;
+    toBool(): Bool;
 }

@@ -1,9 +1,7 @@
-import { nothing, Nothing } from "../Maybe/nothing";
-import { Schtate } from "../types/Schtate";
 import { Either } from "../Either/Either";
 import { Maybe } from "../Maybe/Maybe";
 
-export class Bool<T extends boolean> {
+export class Bool {
   private value: boolean;
   constructor(value: boolean) {
     this.value = value;
@@ -16,19 +14,19 @@ export class Bool<T extends boolean> {
     return Bool.true();
   }
 
-  static fromFn(cb: () => false | undefined | null) {
+  static fromFn(cb: () => boolean | undefined | null) {
     return Bool.of(cb());
   }
 
   static false() {
-    return new Bool<false>(false);
+    return new Bool(false);
   }
 
   static true() {
-    return new Bool<true>(true);
+    return new Bool(true);
   }
 
-  map<U extends boolean>(cb: (arg: boolean) => boolean): Bool<U> {
+  map(cb: (arg: boolean) => boolean): Bool {
     const v = cb(this.value);
     return Bool.of(v);
   }
@@ -44,16 +42,16 @@ export class Bool<T extends boolean> {
     });
   }
 
-  true(cb: () => void) {
+  true(cb: (arg: boolean) => void) {
     if (this.value) {
-      cb();
+      cb(this.value);
     }
     return this;
   }
 
-  false(cb: () => void) {
+  false(cb: (arg: boolean) => void) {
     if (!this.value) {
-      cb();
+      cb(this.value);
     }
     return this;
   }

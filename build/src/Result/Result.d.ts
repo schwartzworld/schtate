@@ -15,7 +15,7 @@ export declare class Result<Data> {
         error: (message: Error) => Error;
     }) => Result<U>;
     data<U>(cb: (value: Data) => U): Result<U>;
-    error<U>(cb: (value: Error) => Error | void): Result<Data>;
+    error(cb: (value: Error) => Error | void): Result<Data>;
     reduce<SomethingElse>(cb: (arg0: SomethingElse, arg1: Data) => SomethingElse, starterThing: SomethingElse): Result<SomethingElse>;
     match<T, U>({ data: dataCB, error: errorCb, }: {
         data: (arg: Data) => T;

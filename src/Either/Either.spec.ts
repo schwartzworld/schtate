@@ -1,5 +1,4 @@
 import { Either } from "./Either";
-import { Maybe } from "../Maybe/Maybe";
 
 describe("Either Monad Tests", () => {
   it("can create a Left or Right either", () => {
@@ -54,7 +53,7 @@ describe("Either Monad Tests", () => {
       },
       right: (value: number) => {
         // won't run
-        expect(2).toBe("This should not run");
+        expect(value).toBe("This should not run");
       },
     });
   });
@@ -128,7 +127,7 @@ describe("Either Monad Tests", () => {
     const Me = { name: "schwartz", age: 40 };
     const Irving = { name: "irving", age: 75 };
     const meEither = Either.fromFunction<typeof Me, typeof Irving>(() => {
-      return true ? Either.left(Me) : Either.right(Irving);
+      return Math.random() < 2 ? Either.left(Me) : Either.right(Irving);
     });
 
     const myAge: number | void = meEither.match({
@@ -144,7 +143,7 @@ describe("Either Monad Tests", () => {
     expect(myAge).toBe(Me.age);
 
     const irvingEither = Either.fromFunction<typeof Me, typeof Irving>(() => {
-      return false ? Either.left(Me) : Either.right(Irving);
+      return Math.random() > 2 ? Either.left(Me) : Either.right(Irving);
     });
 
     const irvAge: number | void = irvingEither.match<void, number>({
@@ -188,13 +187,13 @@ describe("Either Monad Tests", () => {
     test("leftward", () => {
       expect.assertions(2);
       const lll = Either.fromFunction<{ name: string }, { foo: string }>(
-        (left, right) => {
+        (left) => {
           return left({ name: "roseanne" });
         }
       );
       const foo = lll.get("foo");
 
-      foo.nothing((val) => {
+      foo.nothing(() => {
         expect("passed").toBe("passed");
       });
       foo.something((val) => {
