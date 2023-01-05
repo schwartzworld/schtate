@@ -1,7 +1,6 @@
 import { nothing, Nothing } from "./nothing";
 import { Schtate } from "../types/Schtate";
 import { Either } from "../Either/Either";
-import { State } from "../State/State";
 import { Bool } from "../Bool/Bool";
 
 export class Maybe<Something> implements Schtate<Something> {
@@ -112,9 +111,9 @@ export class Maybe<Something> implements Schtate<Something> {
     });
   }
 
-  toBool(): Bool<boolean> {
+  toBool(): Bool {
     return this.match({
-      something: (val) => {
+      something: () => {
         return Bool.true();
       },
       nothing: () => {

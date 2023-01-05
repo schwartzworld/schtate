@@ -32,11 +32,11 @@ describe("Maybe Monad Tests", () => {
     expect.assertions(1);
     const value = "something";
     Maybe.of(value).something((val) => {
-      expect(value).toBe(value);
+      expect(val).toBe(value);
     });
     Maybe.nothing().something((val) => {
       // This one will never fire
-      expect(value).toBe("a different value");
+      expect(val).toBe("a different value");
     });
   });
 
@@ -44,7 +44,7 @@ describe("Maybe Monad Tests", () => {
     expect.assertions(1);
 
     const value = "something";
-    Maybe.of(value).nothing((val) => {
+    Maybe.of(value).nothing(() => {
       // This one will never fire
       expect(value).toBe("fail me please");
     });
@@ -124,7 +124,7 @@ describe("Maybe Monad Tests", () => {
 
     const nothingStr = "nothing";
     const unwrappedNothing = Maybe.nothing().match({
-      something: (v) => null,
+      something: () => null,
       nothing: () => nothingStr,
     });
     expect(unwrappedNothing).toBe(nothingStr);

@@ -93,7 +93,7 @@ describe("Result tests", () => {
     });
     errMapped
       .data((num) => {
-        expect("this should not run").toBe(1);
+        expect("this should not run").toBe(num);
       })
       .error((e) => {
         expect(e).toBe(msg + msg);
@@ -146,7 +146,7 @@ describe("Result tests", () => {
       d.nothing((n) => {
         expect(n.isNothing).toBe(true);
       }).something((something) => {
-        expect("this").toBe("not to be called");
+        expect(something).toBe("not to be called");
       });
     });
     const err = await Result.ofMaybe(() => {
@@ -164,7 +164,7 @@ describe("Result tests", () => {
   });
 
   it("has a convenience function for creating without accessing static methods", async () => {
-    const res: Result<number> = await Result.fromFunction((data, error) => {
+    const res: Result<number> = await Result.fromFunction((data) => {
       return data(5);
     });
     res.data((five) => {
@@ -172,11 +172,9 @@ describe("Result tests", () => {
     });
   });
   it("has a getter that returns a maybe", async () => {
-    const res: Result<{ foo: string }> = await Result.fromFunction(
-      (data, error) => {
-        return data({ foo: "bar" });
-      }
-    );
+    const res: Result<{ foo: string }> = await Result.fromFunction((data) => {
+      return data({ foo: "bar" });
+    });
     res.get("foo").something((val) => expect(val).toBe("bar"));
 
     const err = await Result.fromFunction<{ foo: string }>((_, error) => {

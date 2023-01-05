@@ -3,54 +3,68 @@ import { Bool } from "./Bool";
 describe("Bool tests", () => {
   describe("build a Bool", () => {
     it("wraps a value and represents it as a boolean", () => {
-      const b = Bool.of(Math.random() > 0.5);
-      // @ts-ignore
-      expect(typeof b.value).toBe("boolean");
+      const b = Bool.of(1);
+      b.map((value) => {
+        expect(typeof value).toBe("boolean");
+        return value;
+      });
     });
 
     it("does not coerce 0 or other empty but truthy types", () => {
       const arr = Bool.of([]);
-      // @ts-ignore
-      expect(arr.value).toBe(true);
+      arr.true((value) => {
+        expect(value).toBe(true);
+      });
 
       const zero = Bool.of(0);
-      // @ts-ignore
-      expect(zero.value).toBe(true);
+      zero.true((value) => {
+        expect(value).toBe(true);
+      });
 
       const obj = Bool.of({});
-      // @ts-ignore
-      expect(obj.value).toBe(true);
+      obj.true((value) => {
+        expect(value).toBe(true);
+      });
     });
 
     it("does coerce null and undefined", () => {
       const arr = Bool.of(false);
-      // @ts-ignore
-      expect(arr.value).toBe(false);
+      arr.false((value) => {
+        expect(value).toBe(false);
+      });
 
-      const zero = Bool.of(null);
-      // @ts-ignore
-      expect(zero.value).toBe(false);
+      const n = Bool.of(null);
+      n.false((value) => {
+        expect(value).toBe(false);
+      });
 
-      const obj = Bool.of(undefined);
-      // @ts-ignore
-      expect(obj.value).toBe(false);
+      const u = Bool.of(undefined);
+      u.false((value) => {
+        expect(value).toBe(false);
+      });
     });
 
     it("can also create a Bool from a function", () => {
-      // @ts-ignore
-      expect(Bool.fromFn(() => false).value).toBe(false);
-      // @ts-ignore
-      expect(Bool.fromFn(() => "f" === "f").value).toBe(true);
+      const f = Bool.fromFn(() => false);
+      f.false((value) => {
+        expect(value).toBe(false);
+      });
+      const g = Bool.fromFn(() => "f" === "f");
+      g.true((value) => {
+        expect(value).toBe(true);
+      });
     });
 
     it("has a utility method for creating a truthy Bool", () => {
-      // @ts-ignore
-      expect(Bool.true().value).toBe(true);
+      Bool.true().true((value) => {
+        expect(value).toBe(true);
+      });
     });
 
     it("has a utility method for creating a falsey Bool", () => {
-      // @ts-ignore
-      expect(Bool.false().value).toBe(false);
+      Bool.false().false((value) => {
+        expect(value).toBe(false);
+      });
     });
   });
 

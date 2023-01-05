@@ -1,17 +1,17 @@
 import { Either } from "../Either/Either";
 import { Maybe } from "../Maybe/Maybe";
-export declare class Bool<T extends boolean> {
+export declare class Bool {
     private value;
     constructor(value: boolean);
-    static of(arg: unknown): Bool<false>;
-    static fromFn(cb: () => false | undefined | null): Bool<false>;
-    static false(): Bool<false>;
-    static true(): Bool<true>;
-    map<U extends boolean>(cb: (arg: boolean) => boolean): Bool<U>;
-    and(value: unknown): Bool<boolean>;
-    or(value: unknown): Bool<boolean>;
-    true(cb: () => void): this;
-    false(cb: () => void): this;
+    static of(arg: unknown): Bool;
+    static fromFn(cb: () => boolean | undefined | null): Bool;
+    static false(): Bool;
+    static true(): Bool;
+    map(cb: (arg: boolean) => boolean): Bool;
+    and(value: unknown): Bool;
+    or(value: unknown): Bool;
+    true(cb: (arg: boolean) => void): this;
+    false(cb: (arg: boolean) => void): this;
     match<T, U>({ true: trueCB, false: falseCB, }: {
         true: () => T;
         false: () => U;

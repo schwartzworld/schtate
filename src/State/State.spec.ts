@@ -1,5 +1,3 @@
-import { Maybe } from "../Maybe/Maybe";
-import { nothing } from "../Maybe/nothing";
 import { State } from "./State";
 
 describe("State Monad Tests", () => {
@@ -36,7 +34,7 @@ describe("State Monad Tests", () => {
       .map<number>((arr: string[]) => {
         return arr.length;
       })
-      .match((num: Number) => {
+      .match((num: number) => {
         expect(num).toBe(someString.length);
       });
 
