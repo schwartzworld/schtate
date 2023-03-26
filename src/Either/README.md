@@ -60,8 +60,8 @@ For this, you can use `Either.fromFunction`. In the case of our user, it might l
 ```typescript
 const user = await getUserDetails();
 const u: Either<LoggedInUser, LoggedOutUser> = Either.fromFunction(() => {
-    if (user.username) return Left(user); // yes I know this is an If, but it's just the one
-    return Right({ loggedOut: true });
+    if (user.username) return Either.left(user); // yes I know this is an If, but it's just the one
+    return Either.right({ loggedOut: true });
 });
 ```
 
