@@ -7,7 +7,7 @@ consider using `Maybe.nothing`. Don't forget to type it!
 
 ```typescript
 const nothing = Maybe.nothing<string>();
-``` 
+```
 
 ### Maybe - For things that may or may not exist
 
@@ -115,7 +115,7 @@ if (v) {
 
 Instead, `Maybe` includes 3 methods.
 
-##### `Maybe.prototype.something` and `Maybe.prototype.something`
+##### `Maybe.prototype.something` and `Maybe.prototype.nothing`
 
 `something`: You provide a callback that executes if something is there.
 
