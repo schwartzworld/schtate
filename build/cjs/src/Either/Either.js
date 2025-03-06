@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Either = void 0;
 const State_1 = require("../State/State");
 const Maybe_1 = require("../Maybe/Maybe");
+const deepClone_1 = require("../utils/deepClone");
 class Either {
     constructor(value, whichSide) {
         this.value = value;
@@ -10,9 +11,9 @@ class Either {
     }
     static of(val, whichSide) {
         if (State_1.State.isState(val)) {
-            return new Either(val, whichSide);
+            return new Either((0, deepClone_1.deepClone)(val), whichSide);
         }
-        return new Either(State_1.State.of(val), whichSide);
+        return new Either(State_1.State.of((0, deepClone_1.deepClone)(val)), whichSide);
     }
     static isEither(val) {
         return val instanceof Either;
@@ -21,10 +22,10 @@ class Either {
         return cb(Either.left, Either.right);
     }
     static left(value) {
-        return Either.of(value, "left");
+        return Either.of((0, deepClone_1.deepClone)(value), "left");
     }
     static right(value) {
-        return Either.of(value, "right");
+        return Either.of((0, deepClone_1.deepClone)(value), "right");
     }
     isLeft(value) {
         if (this.whichSide === "right")
@@ -34,30 +35,30 @@ class Either {
     left(cb) {
         return this.map({
             left: (value) => {
-                return cb(value);
+                return cb((0, deepClone_1.deepClone)(value));
             },
-            right: (v) => v,
+            right: (v) => (0, deepClone_1.deepClone)(v),
         });
     }
     right(cb) {
         return this.map({
             left: (l) => {
-                return l;
+                return (0, deepClone_1.deepClone)(l);
             },
             right: (value) => {
-                return cb(value);
+                return cb((0, deepClone_1.deepClone)(value));
             },
         });
     }
     map({ left: leftCb, right: rightCb, }) {
         if (this.isLeft(this.value)) {
             const mappedValue = this.value.map((val) => {
-                return leftCb(val);
+                return leftCb((0, deepClone_1.deepClone)(val));
             });
             return Either.left(mappedValue);
         }
         const mappedValue = this.value.map((val) => {
-            return rightCb(val);
+            return rightCb((0, deepClone_1.deepClone)(val));
         });
         return Either.right(mappedValue);
     }
@@ -66,18 +67,18 @@ class Either {
             return this.value.match(leftCb);
         }
         return this.value.match((r) => {
-            return rightCb(r);
+            return rightCb((0, deepClone_1.deepClone)(r));
         });
     }
     get(property) {
         return this.match({
             left: (left) => {
                 const l = left[property];
-                return Maybe_1.Maybe.of(l);
+                return Maybe_1.Maybe.of((0, deepClone_1.deepClone)(l));
             },
             right: (right) => {
                 const r = right[property];
-                return Maybe_1.Maybe.of(r);
+                return Maybe_1.Maybe.of((0, deepClone_1.deepClone)(r));
             },
         });
     }

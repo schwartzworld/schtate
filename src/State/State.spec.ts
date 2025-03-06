@@ -66,7 +66,7 @@ describe("State Monad Tests", () => {
     const unwrapped = State.of(me).match((user) => {
       return user;
     });
-    expect(unwrapped).toBe(me);
+    expect(unwrapped).toEqual(me);
 
     const numbers = [1, 2, 3];
     const second = State.of(numbers).match<number>((numArr) => {

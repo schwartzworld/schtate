@@ -1,5 +1,6 @@
 import { State } from "../State/State";
 import { Maybe } from "../Maybe/Maybe";
+import { deepClone } from "../utils/deepClone";
 
 export class Either<L, R> {
   private value: State<L | R>;
@@ -15,9 +16,9 @@ export class Either<L, R> {
     whichSide: "right" | "left"
   ): Either<L, R> {
     if (State.isState(val)) {
-      return new Either<L, R>(val, whichSide);
+      return new Either<L, R>(deepClone(val), whichSide);
     }
-    return new Either<L, R>(State.of(val as L | R), whichSide);
+    return new Either<L, R>(State.of(deepClone(val) as L | R), whichSide);
   }
 
   static isEither(val: unknown): val is Either<unknown, unknown> {
@@ -31,11 +32,11 @@ export class Either<L, R> {
   }
 
   static left<L, R>(value: L | State<L>) {
-    return Either.of<L, R>(value, "left");
+    return Either.of<L, R>(deepClone(value), "left");
   }
 
   static right<L, R>(value: R | State<R>) {
-    return Either.of<L, R>(value, "right");
+    return Either.of<L, R>(deepClone(value), "right");
   }
 
   private isLeft(value: State<L | R>): value is State<L> {
@@ -46,19 +47,19 @@ export class Either<L, R> {
   left<X>(cb: (arg: L) => X | R): Either<X, R> {
     return this.map<X, R>({
       left: (value) => {
-        return cb(value) as X;
+        return cb(deepClone(value)) as X;
       },
-      right: (v) => v,
+      right: (v) => deepClone(v),
     });
   }
 
   right<Y>(cb: (arg: R) => L | Y): Either<L, Y> {
     return this.map<L, Y>({
       left: (l) => {
-        return l;
+        return deepClone(l);
       },
       right: (value) => {
-        return cb(value) as Y;
+        return cb(deepClone(value)) as Y;
       },
     });
   }
@@ -72,12 +73,12 @@ export class Either<L, R> {
   }): Either<T, U> {
     if (this.isLeft(this.value)) {
       const mappedValue: State<T> = this.value.map((val: L): T => {
-        return leftCb(val);
+        return leftCb(deepClone(val));
       });
       return Either.left(mappedValue);
     }
     const mappedValue: State<U> = this.value.map((val): U => {
-      return rightCb(val as R);
+      return rightCb(deepClone(val) as R);
     });
     return Either.right(mappedValue);
   }
@@ -93,7 +94,7 @@ export class Either<L, R> {
       return this.value.match(leftCb);
     }
     return this.value.match((r) => {
-      return rightCb(r as R);
+      return rightCb(deepClone(r) as R);
     });
   }
 
@@ -101,11 +102,11 @@ export class Either<L, R> {
     return this.match({
       left: (left) => {
         const l = left[property as keyof L];
-        return Maybe.of<typeof l>(l);
+        return Maybe.of<typeof l>(deepClone(l));
       },
       right: (right) => {
         const r = right[property as keyof R];
-        return Maybe.of<typeof r>(r);
+        return Maybe.of<typeof r>(deepClone(r));
       },
     });
   }

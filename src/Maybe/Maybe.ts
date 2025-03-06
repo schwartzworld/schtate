@@ -2,6 +2,7 @@ import { nothing, Nothing } from "./nothing";
 import { Schtate } from "../types/Schtate";
 import { Either } from "../Either/Either";
 import { Bool } from "../Bool/Bool";
+import { deepClone } from "../utils/deepClone";
 
 export class Maybe<Something> implements Schtate<Something> {
   private value: Either<Something, Nothing>;
@@ -9,9 +10,9 @@ export class Maybe<Something> implements Schtate<Something> {
   private constructor(value: Something | Nothing) {
     this.value = Either.fromFunction<Something, Nothing>(() => {
       if (Maybe.isNothing(value)) {
-        return Either.right<Something, Nothing>(value);
+        return Either.right<Something, Nothing>(deepClone(value));
       }
-      return Either.left<Something, Nothing>(value);
+      return Either.left<Something, Nothing>(deepClone(value));
     });
   }
 
@@ -36,7 +37,7 @@ export class Maybe<Something> implements Schtate<Something> {
     if (Maybe.isMaybe(val)) {
       return val as Maybe<Something>;
     }
-    return new Maybe<Something>(val as Something);
+    return new Maybe<Something>(deepClone(val) as Something);
   }
 
   static fromFunction<Something>(
@@ -46,7 +47,7 @@ export class Maybe<Something> implements Schtate<Something> {
     ) => Something | null | Nothing
   ) {
     const value = cb(Maybe.of, Maybe.nothing);
-    return Maybe.of(value);
+    return Maybe.of(deepClone(value));
   }
 
   nothing(cb: (arg: Nothing) => void) {
@@ -60,7 +61,7 @@ export class Maybe<Something> implements Schtate<Something> {
     return Maybe.fromFunction<SomethingElse>(() => {
       return this.value.match({
         left: (val) => {
-          const result: SomethingElse = cb(val);
+          const result: SomethingElse = cb(deepClone(val));
           return result;
         },
         right: () => {
@@ -77,7 +78,7 @@ export class Maybe<Something> implements Schtate<Something> {
     starterThing: SomethingElse
   ): Maybe<SomethingElse> {
     return this.something((val) => {
-      return cb(starterThing, val);
+      return cb(deepClone(starterThing), deepClone(val));
     });
   }
 
@@ -96,17 +97,17 @@ export class Maybe<Something> implements Schtate<Something> {
 
   get(property: keyof Something): Maybe<Something[typeof property]> {
     return this.map((val) => {
-      return val[property];
+      return deepClone(val[property]);
     });
   }
 
   toEither(): Either<Something, null> {
     return this.match({
       something: (val) => {
-        return Either.left(val);
+        return Either.left(deepClone(val));
       },
       nothing: () => {
-        return Either.right(null);
+        return Either.right(deepClone(null));
       },
     });
   }
