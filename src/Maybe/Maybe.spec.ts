@@ -113,6 +113,7 @@ describe("Maybe Monad Tests", () => {
         expect(val.isNothing).toBe(true);
       });
   });
+  
 
   it("has a match function that returns the wrapped value", () => {
     const me = { username: "schwartz" };
