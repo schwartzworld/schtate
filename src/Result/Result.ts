@@ -1,5 +1,6 @@
 import { Either } from "../Either/Either";
 import { Maybe } from "../Maybe/Maybe";
+import { deepClone } from "../utils/deepClone";
 
 type Error = string;
 
@@ -23,7 +24,7 @@ export class Result<Data> {
 
   static async of<T>(cb: () => Promise<T> | T) {
     try {
-      const value = await cb();
+      const value = deepClone(await cb());
       return Result.data<T>(value);
     } catch (e) {
       return Result.error<T>(String(e));
@@ -54,7 +55,7 @@ export class Result<Data> {
     return new Result<U>(
       this.value.map<U, Error>({
         left: (value) => {
-          return dataCb(value);
+          return dataCb(deepClone(value));
         },
         right: (err) => {
           return errorCb(err);
@@ -84,7 +85,7 @@ export class Result<Data> {
     starterThing: SomethingElse
   ): Result<SomethingElse> {
     return this.data((val) => {
-      return cb(starterThing, val);
+      return cb(deepClone(starterThing), deepClone(val));
     });
   }
 
@@ -101,5 +102,5 @@ export class Result<Data> {
     });
   }
 
-  get = (args: keyof Data) => this.value.get(args);
+  get = (args: keyof Data) => deepClone(this.value.get(args));
 }
