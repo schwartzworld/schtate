@@ -20,4 +20,5 @@ __exportStar(require("./src/Bool/Bool"), exports);
 __exportStar(require("./src/State/State"), exports);
 __exportStar(require("./src/Either/Either"), exports);
 __exportStar(require("./src/Result/Result"), exports);
+__exportStar(require("./src/Validation/Validation"), exports);
 //# sourceMappingURL=index.js.map
