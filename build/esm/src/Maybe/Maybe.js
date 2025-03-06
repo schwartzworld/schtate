@@ -1,14 +1,15 @@
 import { nothing, Nothing } from "./nothing";
 import { Either } from "../Either/Either";
 import { Bool } from "../Bool/Bool";
+import { deepClone } from "../utils/deepClone";
 export class Maybe {
     constructor(value) {
         this.something = this.map;
         this.value = Either.fromFunction(() => {
             if (Maybe.isNothing(value)) {
-                return Either.right(value);
+                return Either.right(deepClone(value));
             }
-            return Either.left(value);
+            return Either.left(deepClone(value));
         });
     }
     static isNothing(value) {
@@ -24,11 +25,11 @@ export class Maybe {
         if (Maybe.isMaybe(val)) {
             return val;
         }
-        return new Maybe(val);
+        return new Maybe(deepClone(val));
     }
     static fromFunction(cb) {
         const value = cb(Maybe.of, Maybe.nothing);
-        return Maybe.of(value);
+        return Maybe.of(deepClone(value));
     }
     nothing(cb) {
         this.value.right(cb);
@@ -38,7 +39,7 @@ export class Maybe {
         return Maybe.fromFunction(() => {
             return this.value.match({
                 left: (val) => {
-                    const result = cb(val);
+                    const result = cb(deepClone(val));
                     return result;
                 },
                 right: () => {
@@ -49,7 +50,7 @@ export class Maybe {
     }
     reduce(cb, starterThing) {
         return this.something((val) => {
-            return cb(starterThing, val);
+            return cb(deepClone(starterThing), deepClone(val));
         });
     }
     match({ something: somethingCB, nothing: nothingCB, }) {
@@ -60,16 +61,16 @@ export class Maybe {
     }
     get(property) {
         return this.map((val) => {
-            return val[property];
+            return deepClone(val[property]);
         });
     }
     toEither() {
         return this.match({
             something: (val) => {
-                return Either.left(val);
+                return Either.left(deepClone(val));
             },
             nothing: () => {
-                return Either.right(null);
+                return Either.right(deepClone(null));
             },
         });
     }

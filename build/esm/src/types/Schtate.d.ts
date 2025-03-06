@@ -1,4 +1,4 @@
 import { Reduceable } from "./Reducable";
 import { Mappable } from "./Mappable";
-export type Schtate<T> = Mappable<T> & Reduceable<T>;
+export declare type Schtate<T> = Mappable<T> & Reduceable<T>;
 //# sourceMappingURL=Schtate.d.ts.map

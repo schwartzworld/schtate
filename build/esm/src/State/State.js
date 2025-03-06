@@ -1,3 +1,4 @@
+import { deepClone } from "../utils/deepClone";
 export class State {
     constructor(value) {
         this.value = value;
@@ -7,16 +8,16 @@ export class State {
     }
     static fromFunction(cb) {
         const value = cb();
-        return State.of(value);
+        return State.of(deepClone(value));
     }
     map(cb) {
-        return State.of(cb(this.value));
+        return State.of(cb(deepClone(this.value)));
     }
     reduce(cb, starterThing) {
-        return State.of(cb(starterThing, this.value));
+        return State.of(cb(deepClone(starterThing), deepClone(this.value)));
     }
     match(cb) {
-        return cb(this.value);
+        return cb(deepClone(this.value));
     }
 }
 State.isState = (arg) => {
