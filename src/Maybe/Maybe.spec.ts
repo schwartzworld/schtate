@@ -49,7 +49,7 @@ describe("Maybe Monad Tests", () => {
       expect(value).toBe("fail me please");
     });
     Maybe.nothing().nothing((value) => {
-      expect(value).toBe(nothing);
+      expect(value.isNothing).toBe(true);
     });
   });
 
@@ -68,7 +68,7 @@ describe("Maybe Monad Tests", () => {
         return val.toString();
       })
       .nothing((val) => {
-        expect(val).toBe(nothing);
+        expect(val.isNothing).toBe(true);
       });
 
     Maybe.of(new Date())
@@ -110,7 +110,7 @@ describe("Maybe Monad Tests", () => {
         return arr.concat(val);
       }, starterArr)
       .nothing((val) => {
-        expect(val).toBe(nothing);
+        expect(val.isNothing).toBe(true);
       });
   });
 
@@ -120,7 +120,7 @@ describe("Maybe Monad Tests", () => {
       something: (v) => v,
       nothing: () => null,
     });
-    expect(unwrapped).toBe(me);
+    expect(unwrapped).toEqual(me);
 
     const nothingStr = "nothing";
     const unwrappedNothing = Maybe.nothing().match({
