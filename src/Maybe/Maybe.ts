@@ -12,6 +12,7 @@ export class Maybe<Something> implements Schtate<Something> {
       if (Maybe.isNothing(value)) {
         return Either.right<Something, Nothing>(deepClone(value));
       }
+      
       return Either.left<Something, Nothing>(deepClone(value));
     });
   }
