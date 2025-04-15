@@ -1,36 +1,33 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Result = void 0;
-const Either_1 = require("../Either/Either");
-const Maybe_1 = require("../Maybe/Maybe");
-const deepClone_1 = require("../utils/deepClone");
-class Result {
+import { Either } from "../Either/Either";
+import { Maybe } from "../Maybe/Maybe";
+import { deepClone } from "../utils/deepClone";
+export class Result {
     constructor(value) {
         this.map = ({ data: dataCb, error: errorCb, }) => {
             return new Result(this.value.map({
                 left: (value) => {
-                    return dataCb((0, deepClone_1.deepClone)(value));
+                    return dataCb(deepClone(value));
                 },
                 right: (err) => {
                     return errorCb(err);
                 },
             }));
         };
-        this.get = (args) => (0, deepClone_1.deepClone)(this.value.get(args));
+        this.get = (args) => deepClone(this.value.get(args));
         this.value = value;
     }
     static error(message) {
-        return new Result(Either_1.Either.right(message));
+        return new Result(Either.right(message));
     }
     static data(data) {
-        return new Result(Either_1.Either.left(data));
+        return new Result(Either.left(data));
     }
     static isResult(val) {
         return val instanceof Result;
     }
     static async of(cb) {
         try {
-            const value = (0, deepClone_1.deepClone)(await cb());
+            const value = deepClone(await cb());
             return Result.data(value);
         }
         catch (e) {
@@ -42,7 +39,7 @@ class Result {
     }
     static async ofMaybe(cb) {
         const res = await Result.of(cb);
-        return res.data((d) => Maybe_1.Maybe.of(d));
+        return res.data((d) => Maybe.of(d));
     }
     data(cb) {
         return this.map({
@@ -61,7 +58,7 @@ class Result {
     }
     reduce(cb, starterThing) {
         return this.data((val) => {
-            return cb((0, deepClone_1.deepClone)(starterThing), (0, deepClone_1.deepClone)(val));
+            return cb(deepClone(starterThing), deepClone(val));
         });
     }
     match({ data: dataCB, error: errorCb, }) {
@@ -71,5 +68,4 @@ class Result {
         });
     }
 }
-exports.Result = Result;
 //# sourceMappingURL=Result.js.map

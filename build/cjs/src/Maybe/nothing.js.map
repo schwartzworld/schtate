@@ -1,1 +1,1 @@
-{"version":3,"file":"nothing.js","sourceRoot":"","sources":["../../../../src/Maybe/nothing.ts"],"names":[],"mappings":";;;AAAA,MAAa,OAAO;IAApB;QACE,cAAS,GAAG,IAAI,CAAC;IACnB,CAAC;CAAA;AAFD,0BAEC;AAEY,QAAA,OAAO,GAAG,IAAI,OAAO,EAAE,CAAC"}
+{"version":3,"file":"nothing.js","sourceRoot":"","sources":["../../../../src/Maybe/nothing.ts"],"names":[],"mappings":"AAAA,MAAM,OAAO,OAAO;IAApB;QACE,cAAS,GAAG,IAAI,CAAC;IACnB,CAAC;CAAA;AAED,MAAM,CAAC,MAAM,OAAO,GAAG,IAAI,OAAO,EAAE,CAAC"}

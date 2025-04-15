@@ -21,9 +21,10 @@ export declare class Result<Data> {
         data: (arg: Data) => T;
         error: (err: Error) => U;
     }): T | U;
-    get: (args: keyof Data) => Maybe<Data[keyof Data]> | Maybe<string | number | (() => IterableIterator<string>) | (() => string) | ((pos: number) => string) | ((index: number) => number) | ((...strings: string[]) => string) | ((searchString: string, position?: number | undefined) => number) | ((searchString: string, position?: number | undefined) => number) | {
+    get: (args: keyof Data) => Maybe<Data[keyof Data]> | Maybe<string | number | (() => StringIterator<string>) | (() => string) | ((pos: number) => string) | ((index: number) => number) | ((...strings: string[]) => string) | ((searchString: string, position?: number) => number) | ((searchString: string, position?: number) => number) | {
         (that: string): number;
-        (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number;
+        (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number;
+        (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number;
     } | {
         (regexp: string | RegExp): RegExpMatchArray | null;
         (matcher: {
@@ -43,18 +44,24 @@ export declare class Result<Data> {
         (searcher: {
             [Symbol.search](string: string): number;
         }): number;
-    } | ((start?: number | undefined, end?: number | undefined) => string) | {
-        (separator: string | RegExp, limit?: number | undefined): string[];
+    } | ((start?: number, end?: number) => string) | {
+        (separator: string | RegExp, limit?: number): string[];
         (splitter: {
-            [Symbol.split](string: string, limit?: number | undefined): string[];
-        }, limit?: number | undefined): string[];
-    } | ((start: number, end?: number | undefined) => string) | (() => string) | ((locales?: string | string[] | undefined) => string) | (() => string) | ((locales?: string | string[] | undefined) => string) | (() => string) | ((from: number, length?: number | undefined) => string) | (() => string) | ((pos: number) => number | undefined) | ((searchString: string, position?: number | undefined) => boolean) | ((searchString: string, endPosition?: number | undefined) => boolean) | {
+            [Symbol.split](string: string, limit?: number): string[];
+        }, limit?: number): string[];
+    } | ((start: number, end?: number) => string) | (() => string) | {
+        (locales?: string | string[]): string;
+        (locales?: Intl.LocalesArgument): string;
+    } | (() => string) | {
+        (locales?: string | string[]): string;
+        (locales?: Intl.LocalesArgument): string;
+    } | (() => string) | ((from: number, length?: number) => string) | (() => string) | ((pos: number) => number | undefined) | ((searchString: string, position?: number) => boolean) | ((searchString: string, endPosition?: number) => boolean) | {
         (form: "NFC" | "NFD" | "NFKC" | "NFKD"): string;
-        (form?: string | undefined): string;
-    } | ((count: number) => string) | ((searchString: string, position?: number | undefined) => boolean) | ((name: string) => string) | (() => string) | (() => string) | (() => string) | (() => string) | ((color: string) => string) | {
+        (form?: string): string;
+    } | ((count: number) => string) | ((searchString: string, position?: number) => boolean) | ((name: string) => string) | (() => string) | (() => string) | (() => string) | (() => string) | ((color: string) => string) | {
         (size: number): string;
         (size: string): string;
-    } | (() => string) | ((url: string) => string) | (() => string) | (() => string) | (() => string) | (() => string) | ((maxLength: number, fillString?: string | undefined) => string) | ((maxLength: number, fillString?: string | undefined) => string) | (() => string) | (() => string) | (() => string) | (() => string) | ((regexp: RegExp) => IterableIterator<RegExpMatchArray>) | ((index: number) => string | undefined)>;
+    } | (() => string) | ((url: string) => string) | (() => string) | (() => string) | (() => string) | (() => string) | ((maxLength: number, fillString?: string) => string) | ((maxLength: number, fillString?: string) => string) | (() => string) | (() => string) | (() => string) | (() => string) | ((regexp: RegExp) => RegExpStringIterator<RegExpExecArray>) | ((index: number) => string | undefined)>;
 }
 export {};
 //# sourceMappingURL=Result.d.ts.map

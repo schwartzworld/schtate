@@ -1,25 +1,22 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Maybe = void 0;
-const nothing_1 = require("./nothing");
-const Either_1 = require("../Either/Either");
-const Bool_1 = require("../Bool/Bool");
-const deepClone_1 = require("../utils/deepClone");
-class Maybe {
+import { nothing, Nothing } from "./nothing";
+import { Either } from "../Either/Either";
+import { Bool } from "../Bool/Bool";
+import { deepClone } from "../utils/deepClone";
+export class Maybe {
     constructor(value) {
         this.something = this.map;
-        this.value = Either_1.Either.fromFunction(() => {
+        this.value = Either.fromFunction(() => {
             if (Maybe.isNothing(value)) {
-                return Either_1.Either.right((0, deepClone_1.deepClone)(value));
+                return Either.right(deepClone(value));
             }
-            return Either_1.Either.left((0, deepClone_1.deepClone)(value));
+            return Either.left(deepClone(value));
         });
     }
     static isNothing(value) {
-        return value instanceof nothing_1.Nothing;
+        return value instanceof Nothing;
     }
     static nothing() {
-        return Maybe.of(nothing_1.nothing);
+        return Maybe.of(nothing);
     }
     static of(val) {
         if (val === null || val === undefined) {
@@ -28,11 +25,11 @@ class Maybe {
         if (Maybe.isMaybe(val)) {
             return val;
         }
-        return new Maybe((0, deepClone_1.deepClone)(val));
+        return new Maybe(deepClone(val));
     }
     static fromFunction(cb) {
         const value = cb(Maybe.of, Maybe.nothing);
-        return Maybe.of((0, deepClone_1.deepClone)(value));
+        return Maybe.of(deepClone(value));
     }
     nothing(cb) {
         this.value.right(cb);
@@ -42,18 +39,18 @@ class Maybe {
         return Maybe.fromFunction(() => {
             return this.value.match({
                 left: (val) => {
-                    const result = cb((0, deepClone_1.deepClone)(val));
+                    const result = cb(deepClone(val));
                     return result;
                 },
                 right: () => {
-                    return nothing_1.nothing;
+                    return nothing;
                 },
             });
         });
     }
     reduce(cb, starterThing) {
         return this.something((val) => {
-            return cb((0, deepClone_1.deepClone)(starterThing), (0, deepClone_1.deepClone)(val));
+            return cb(deepClone(starterThing), deepClone(val));
         });
     }
     match({ something: somethingCB, nothing: nothingCB, }) {
@@ -64,31 +61,30 @@ class Maybe {
     }
     get(property) {
         return this.map((val) => {
-            return (0, deepClone_1.deepClone)(val[property]);
+            return deepClone(val[property]);
         });
     }
     toEither() {
         return this.match({
             something: (val) => {
-                return Either_1.Either.left((0, deepClone_1.deepClone)(val));
+                return Either.left(deepClone(val));
             },
             nothing: () => {
-                return Either_1.Either.right((0, deepClone_1.deepClone)(null));
+                return Either.right(deepClone(null));
             },
         });
     }
     toBool() {
         return this.match({
             something: () => {
-                return Bool_1.Bool.true();
+                return Bool.true();
             },
             nothing: () => {
-                return Bool_1.Bool.false();
+                return Bool.false();
             },
         });
     }
 }
-exports.Maybe = Maybe;
 Maybe.isMaybe = (arg) => {
     return arg instanceof Maybe;
 };

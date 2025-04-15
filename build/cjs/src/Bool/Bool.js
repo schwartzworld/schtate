@@ -1,9 +1,6 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Bool = void 0;
-const Either_1 = require("../Either/Either");
-const Maybe_1 = require("../Maybe/Maybe");
-class Bool {
+import { Either } from "../Either/Either";
+import { Maybe } from "../Maybe/Maybe";
+export class Bool {
     constructor(value) {
         this.value = value;
     }
@@ -57,23 +54,22 @@ class Bool {
     toEither() {
         return this.match({
             true: () => {
-                return Either_1.Either.left(true);
+                return Either.left(true);
             },
             false: () => {
-                return Either_1.Either.right(false);
+                return Either.right(false);
             },
         });
     }
     toMaybe() {
         return this.match({
             true: () => {
-                return Maybe_1.Maybe.of(true);
+                return Maybe.of(true);
             },
             false: () => {
-                return Maybe_1.Maybe.nothing();
+                return Maybe.nothing();
             },
         });
     }
 }
-exports.Bool = Bool;
 //# sourceMappingURL=Bool.js.map

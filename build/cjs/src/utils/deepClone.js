@@ -1,11 +1,8 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.deepClone = void 0;
 /**
  * Creates a deep clone of a value while preserving prototype chains and class instances.
  * Handles primitive values, plain objects, arrays, dates, and class instances.
  */
-const deepClone = (val) => {
+export const deepClone = (val) => {
     if (val === null || typeof val !== "object") {
         return val;
     }
@@ -15,7 +12,7 @@ const deepClone = (val) => {
     }
     // Handle Array objects
     if (Array.isArray(val)) {
-        return val.map(item => (0, exports.deepClone)(item));
+        return val.map(item => deepClone(item));
     }
     // Handle class instances by getting their constructor
     const prototype = Object.getPrototypeOf(val);
@@ -23,16 +20,15 @@ const deepClone = (val) => {
     if (constructor && constructor !== Object) {
         const clonedInstance = new constructor();
         const entries = Object.entries(val);
-        Object.assign(clonedInstance, Object.fromEntries(entries.map(([key, value]) => [key, (0, exports.deepClone)(value)])));
+        Object.assign(clonedInstance, Object.fromEntries(entries.map(([key, value]) => [key, deepClone(value)])));
         return clonedInstance;
     }
     // Handle plain objects
     const clonedObj = Object.create(prototype);
     const entries = Object.entries(val);
     for (const [key, value] of entries) {
-        clonedObj[key] = (0, exports.deepClone)(value);
+        clonedObj[key] = deepClone(value);
     }
     return clonedObj;
 };
-exports.deepClone = deepClone;
 //# sourceMappingURL=deepClone.js.map

@@ -1,11 +1,7 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.nothing = exports.Nothing = void 0;
-class Nothing {
+export class Nothing {
     constructor() {
         this.isNothing = true;
     }
 }
-exports.Nothing = Nothing;
-exports.nothing = new Nothing();
+export const nothing = new Nothing();
 //# sourceMappingURL=nothing.js.map

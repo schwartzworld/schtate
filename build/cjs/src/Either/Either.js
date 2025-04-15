@@ -1,19 +1,16 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.Either = void 0;
-const State_1 = require("../State/State");
-const Maybe_1 = require("../Maybe/Maybe");
-const deepClone_1 = require("../utils/deepClone");
-class Either {
+import { State } from "../State/State";
+import { Maybe } from "../Maybe/Maybe";
+import { deepClone } from "../utils/deepClone";
+export class Either {
     constructor(value, whichSide) {
         this.value = value;
         this.whichSide = whichSide;
     }
     static of(val, whichSide) {
-        if (State_1.State.isState(val)) {
-            return new Either((0, deepClone_1.deepClone)(val), whichSide);
+        if (State.isState(val)) {
+            return new Either(deepClone(val), whichSide);
         }
-        return new Either(State_1.State.of((0, deepClone_1.deepClone)(val)), whichSide);
+        return new Either(State.of(deepClone(val)), whichSide);
     }
     static isEither(val) {
         return val instanceof Either;
@@ -22,10 +19,10 @@ class Either {
         return cb(Either.left, Either.right);
     }
     static left(value) {
-        return Either.of((0, deepClone_1.deepClone)(value), "left");
+        return Either.of(deepClone(value), "left");
     }
     static right(value) {
-        return Either.of((0, deepClone_1.deepClone)(value), "right");
+        return Either.of(deepClone(value), "right");
     }
     isLeft(value) {
         if (this.whichSide === "right")
@@ -35,30 +32,30 @@ class Either {
     left(cb) {
         return this.map({
             left: (value) => {
-                return cb((0, deepClone_1.deepClone)(value));
+                return cb(deepClone(value));
             },
-            right: (v) => (0, deepClone_1.deepClone)(v),
+            right: (v) => deepClone(v),
         });
     }
     right(cb) {
         return this.map({
             left: (l) => {
-                return (0, deepClone_1.deepClone)(l);
+                return deepClone(l);
             },
             right: (value) => {
-                return cb((0, deepClone_1.deepClone)(value));
+                return cb(deepClone(value));
             },
         });
     }
     map({ left: leftCb, right: rightCb, }) {
         if (this.isLeft(this.value)) {
             const mappedValue = this.value.map((val) => {
-                return leftCb((0, deepClone_1.deepClone)(val));
+                return leftCb(deepClone(val));
             });
             return Either.left(mappedValue);
         }
         const mappedValue = this.value.map((val) => {
-            return rightCb((0, deepClone_1.deepClone)(val));
+            return rightCb(deepClone(val));
         });
         return Either.right(mappedValue);
     }
@@ -67,21 +64,20 @@ class Either {
             return this.value.match(leftCb);
         }
         return this.value.match((r) => {
-            return rightCb((0, deepClone_1.deepClone)(r));
+            return rightCb(deepClone(r));
         });
     }
     get(property) {
         return this.match({
             left: (left) => {
                 const l = left[property];
-                return Maybe_1.Maybe.of((0, deepClone_1.deepClone)(l));
+                return Maybe.of(deepClone(l));
             },
             right: (right) => {
                 const r = right[property];
-                return Maybe_1.Maybe.of((0, deepClone_1.deepClone)(r));
+                return Maybe.of(deepClone(r));
             },
         });
     }
 }
-exports.Either = Either;
 //# sourceMappingURL=Either.js.map

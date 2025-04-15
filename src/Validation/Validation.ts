@@ -1,4 +1,4 @@
-import { Either } from "../..";
+import { Either } from "../Either/Either";
 import { Mappable } from "../types/Mappable";
 import { deepClone } from "../utils/deepClone";
 import { ValidationError, ValidationErrors, createValidationErrors } from "./ValidationErrors";
