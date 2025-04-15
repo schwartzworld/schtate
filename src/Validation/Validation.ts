@@ -1,7 +1,7 @@
-import { Either } from "../..";
+import { Either } from "../Either/Either.js";
 import { Mappable } from "../types/Mappable.js";
 import { deepClone } from "../utils/deepClone.js";
-import { ValidationError, ValidationErrors, createValidationErrors } from "./ValidationErrors";
+import { ValidationError, ValidationErrors, createValidationErrors } from "./ValidationErrors.js";
 
 export class Validation<T> implements Mappable<T> {
   private value: Either<T, ValidationErrors>;
