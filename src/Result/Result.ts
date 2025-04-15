@@ -1,6 +1,6 @@
-import { Either } from "../Either/Either";
-import { Maybe } from "../Maybe/Maybe";
-import { deepClone } from "../utils/deepClone";
+import { Either } from "../Either/Either.js";
+import { Maybe } from "../Maybe/Maybe.js";
+import { deepClone } from "../utils/deepClone.js";
 
 type Error = string;
 

@@ -1,6 +1,6 @@
 import { Either } from "../..";
-import { Mappable } from "../types/Mappable";
-import { deepClone } from "../utils/deepClone";
+import { Mappable } from "../types/Mappable.js";
+import { deepClone } from "../utils/deepClone.js";
 import { ValidationError, ValidationErrors, createValidationErrors } from "./ValidationErrors";
 
 export class Validation<T> implements Mappable<T> {

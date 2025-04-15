@@ -1,5 +1,5 @@
-import { State } from "../State/State";
-import { Maybe } from "../Maybe/Maybe";
+import { State } from "../State/State.js";
+import { Maybe } from "../Maybe/Maybe.js";
 export declare class Either<L, R> {
     private value;
     private whichSide;

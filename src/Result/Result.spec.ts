@@ -1,5 +1,5 @@
 import { Result } from "./Result";
-import { Maybe } from "../Maybe/Maybe";
+import { Maybe } from "../Maybe/Maybe.js";
 
 describe("Result tests", () => {
   it("should create a Result from an async function", async () => {

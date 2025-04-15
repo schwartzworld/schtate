@@ -1,4 +1,4 @@
-import { deepClone } from "../utils/deepClone";
+import { deepClone } from "../utils/deepClone.js";
 export class State {
     constructor(value) {
         this.value = value;

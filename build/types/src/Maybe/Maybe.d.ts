@@ -1,7 +1,7 @@
-import { Nothing } from "./nothing";
-import { Schtate } from "../types/Schtate";
-import { Either } from "../Either/Either";
-import { Bool } from "../Bool/Bool";
+import { Nothing } from "./nothing.js";
+import { Schtate } from "../types/Schtate.js";
+import { Either } from "../Either/Either.js";
+import { Bool } from "../Bool/Bool.js";
 export declare class Maybe<Something> implements Schtate<Something> {
     private value;
     private constructor();

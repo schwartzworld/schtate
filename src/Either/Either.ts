@@ -1,6 +1,6 @@
-import { State } from "../State/State";
-import { Maybe } from "../Maybe/Maybe";
-import { deepClone } from "../utils/deepClone";
+import { State } from "../State/State.js";
+import { Maybe } from "../Maybe/Maybe.js";
+import { deepClone } from "../utils/deepClone.js";
 
 export class Either<L, R> {
   private value: State<L | R>;

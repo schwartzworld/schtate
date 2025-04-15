@@ -1,7 +1,7 @@
-import { nothing, Nothing } from "./nothing";
-import { Either } from "../Either/Either";
-import { Bool } from "../Bool/Bool";
-import { deepClone } from "../utils/deepClone";
+import { nothing, Nothing } from "./nothing.js";
+import { Either } from "../Either/Either.js";
+import { Bool } from "../Bool/Bool.js";
+import { deepClone } from "../utils/deepClone.js";
 export class Maybe {
     constructor(value) {
         this.something = this.map;

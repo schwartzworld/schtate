@@ -1,8 +1,8 @@
-import { nothing, Nothing } from "./nothing";
-import { Schtate } from "../types/Schtate";
-import { Either } from "../Either/Either";
-import { Bool } from "../Bool/Bool";
-import { deepClone } from "../utils/deepClone";
+import { nothing, Nothing } from "./nothing.js";
+import { Schtate } from "../types/Schtate.js";
+import { Either } from "../Either/Either.js";
+import { Bool } from "../Bool/Bool.js";
+import { deepClone } from "../utils/deepClone.js";
 
 export class Maybe<Something> implements Schtate<Something> {
   private value: Either<Something, Nothing>;

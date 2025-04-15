@@ -1,5 +1,5 @@
-import { Schtate } from "../types/Schtate";
-import { deepClone } from "../utils/deepClone";
+import { Schtate } from "../types/Schtate.js";
+import { deepClone } from "../utils/deepClone.js";
 
 export class State<Something> implements Schtate<Something> {
   private value: Something;
