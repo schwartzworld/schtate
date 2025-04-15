@@ -1,15 +1,15 @@
 {
   "name": "schtate",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "Functional wrappers for state management",
-  "main": "./build/cjs/index.js",
-  "module": "./build/esm/index.js",
-  "types": "./build/types/index.d.ts",
+  "main": "./build/index.js",
+  "module": "./build/index.mjs",
+  "types": "./build/index.d.ts",
   "exports": {
     ".": {
-      "require": "./build/cjs/index.js",
-      "import": "./build/esm/index.js",
-      "types": "./build/types/index.d.ts"
+      "import": "./build/index.mjs",
+      "require": "./build/index.js",
+      "types": "./build/index.d.ts"
     },
     "./*": {
       "require": "./build/cjs/*.js",
@@ -20,10 +20,7 @@
   "sideEffects": false,
   "scripts": {
     "test": "jest src/**/*.test.ts",
-    "build": "rm -rf build && yarn build:cjs && yarn build:esm && yarn build:types",
-    "build:cjs": "tsc -p tsconfig.json --module commonjs --outDir build/cjs",
-    "build:esm": "tsc -p tsconfig.json --module es2015 --outDir build/esm",
-    "build:types": "tsc -p tsconfig.json --declaration --declarationDir build/types --emitDeclarationOnly",
+    "build": "rm -rf build && tsup",
     "lint": "yarn eslint src/**/*.ts* && yarn prettier src/**/*.ts*",
     "lint:fix": "yarn eslint src/**/*.ts* --fix && yarn prettier src/**/*.ts* -w"
   },
@@ -48,6 +45,7 @@
     "prettier": "^2.8.1",
     "ts-jest": "^28.0.6",
     "ts-node": "^10.9.1",
+    "tsup": "^8.4.0",
     "typescript": "^4.7.4"
   },
   "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
