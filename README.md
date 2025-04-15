@@ -26,6 +26,54 @@ if you aren't used to seeing it, it can be daunting and hard to read.
 `Schtate` is designed to be easy to read and write to anybody who is familiar with Arrays and Promises.
 It is unlikely to be a full replacement for functional programming libraries like `fp-ts` or `ramda`.
 
+## ESM Usage
+
+`schtate` is built with ESM (ECMAScript Modules) support and works with modern bundlers like Vite, Rollup, and webpack.
+
+### Importing
+
+```typescript
+// Import from the root package
+import { Maybe, State, Either } from 'schtate';
+
+// Or import specific modules
+import { Maybe } from 'schtate';
+```
+
+### TypeScript Configuration
+
+For optimal TypeScript support, ensure your `tsconfig.json` includes:
+
+```json
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "node16",
+    "esModuleInterop": true
+  }
+}
+```
+
+### Common Issues
+
+1. **Module Resolution Errors**
+   - If you encounter module resolution errors, ensure you're using a bundler that supports ESM
+   - Clear your `node_modules` and reinstall dependencies
+   - Verify your bundler's configuration supports ESM imports
+
+2. **TypeScript Path Resolution**
+   - If TypeScript can't find the types, ensure `skipLibCheck` is set to `true` in your `tsconfig.json`
+   - The package includes type definitions in the `build/types` directory
+
+### Supported Environments
+
+- Node.js 14+
+- Modern browsers (with bundler)
+- Vite
+- Remix
+- Next.js
+- Rollup
+- webpack 5+
 
 ## Documentation
 
