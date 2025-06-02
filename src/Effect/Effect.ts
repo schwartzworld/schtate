@@ -1,8 +1,9 @@
 import { Result } from "../Result/Result";
 import { Maybe } from "../Maybe/Maybe";
+import { Bool } from "../Bool/Bool";
 
 type EffectState<T> = {
-  loading: boolean;
+  loading: Bool;
   result: Maybe<Result<T>>;
 };
 
@@ -16,11 +17,11 @@ export class Effect<T> {
   constructor({
     fn,
     result = Maybe.nothing(),
-    loading = false,
+    loading = Bool.false(),
   }: {
     fn: () => Promise<T> | T;
     result?: Maybe<Result<T>>;
-    loading?: boolean;
+    loading?: Bool;
   }) {
     this.fn = fn;
     this.state = { loading, result };
@@ -56,7 +57,7 @@ export class Effect<T> {
     // Notify subscribers of loading state
     const loadingEffect = new Effect<T>({
       fn: this.fn,
-      loading: true,
+      loading: Bool.true(),
       result: this.state.result,
     });
     this.subscribers.forEach((subscriber) =>
@@ -69,7 +70,7 @@ export class Effect<T> {
       const finalEffect = new Effect<T>({
         fn: () => value,
         result,
-        loading: false,
+        loading: Bool.false(),
       });
       // Notify subscribers of final state
       this.subscribers.forEach((subscriber) =>
@@ -85,7 +86,7 @@ export class Effect<T> {
           throw error;
         },
         result,
-        loading: false,
+        loading: Bool.false(),
       });
       // Notify subscribers of final state
       this.subscribers.forEach((subscriber) =>
