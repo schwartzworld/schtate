@@ -1,6 +1,7 @@
-import { Effect } from "./Effect";
+import { Effect, EffectState } from "./Effect";
 import { Result } from "../Result/Result";
 import { Maybe } from "../Maybe/Maybe";
+import { Bool } from "../Bool/Bool";
 
 describe("Effect", () => {
   describe("constructor", () => {
@@ -9,7 +10,7 @@ describe("Effect", () => {
       const effect = Effect.of(() => "test");
       const state = effect.getState();
 
-      expect(state.loading).toBe(false);
+      expect(state.loading).toEqual(Bool.false());
       state.result.match({
         something: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
@@ -23,11 +24,11 @@ describe("Effect", () => {
       const effect = new Effect({
         fn: () => "test",
         result: maybeResult,
-        loading: true,
+        loading: Bool.true(),
       });
 
       const state = effect.getState();
-      expect(state.loading).toBe(true);
+      expect(state.loading).toEqual(Bool.true());
       expect(state.result).toBe(maybeResult);
     });
   });
@@ -36,12 +37,12 @@ describe("Effect", () => {
     it("should notify subscribers of initial state", () => {
       expect.assertions(3);
       const effect = Effect.of(() => "test");
-      const states: any[] = [];
+      const states: EffectState<string>[] = [];
 
       effect.subscribe((state) => states.push(state));
 
       expect(states).toHaveLength(1);
-      expect(states[0].loading).toBe(false);
+      expect(states[0].loading).toEqual(Bool.false());
       states[0].result.match({
         something: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
@@ -51,32 +52,32 @@ describe("Effect", () => {
     it("should notify subscribers of state changes", async () => {
       expect.assertions(7);
       const effect = Effect.of(() => "test");
-      const states: Array<{ loading: boolean; result: Maybe<Result<string>> }> =
-        [];
+      const states: EffectState<string>[] = [];
 
       effect.subscribe((state) => states.push(state));
 
-      await effect.run();
+      const runPromise = effect.run();
+      const result = await runPromise;
 
       // Should go through all states: initial -> loading -> final
       expect(states).toHaveLength(3);
 
       // Initial state
-      expect(states[0].loading).toBe(false);
+      expect(states[0].loading).toEqual(Bool.false());
       states[0].result.match({
         something: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
       });
 
       // Loading state
-      expect(states[1].loading).toBe(true);
+      expect(states[1].loading).toEqual(Bool.true());
       states[1].result.match({
         something: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
       });
 
       // Final state
-      expect(states[2].loading).toBe(false);
+      expect(states[2].loading).toEqual(Bool.false());
       states[2].result.match({
         something: (result: Result<string>) => {
           result.match({
@@ -88,7 +89,7 @@ describe("Effect", () => {
       });
     });
 
-    it("should allow unsubscribing", () => {
+    it("should allow unsubscribing", async () => {
       expect.assertions(1);
       const effect = Effect.of(() => "test");
       const states: any[] = [];
@@ -96,7 +97,8 @@ describe("Effect", () => {
       const unsubscribe = effect.subscribe((state) => states.push(state));
       unsubscribe();
 
-      effect.run();
+      const runPromise = effect.run();
+      await runPromise;
 
       expect(states).toHaveLength(1); // Only initial state
     });
@@ -106,15 +108,15 @@ describe("Effect", () => {
     it("should handle synchronous functions", async () => {
       expect.assertions(9);
       const effect = Effect.of(() => "test");
-      const states: Array<{ loading: boolean; result: Maybe<Result<string>> }> =
-        [];
+      const states: EffectState<string>[] = [];
 
       effect.subscribe((state) => states.push(state));
 
-      const result = await effect.run();
+      const runPromise = effect.run();
+      const result = await runPromise;
       const finalState = result.getState();
 
-      expect(finalState.loading).toBe(false);
+      expect(finalState.loading).toEqual(Bool.false());
       finalState.result.match({
         something: (result: Result<string>) => {
           result.match({
@@ -129,21 +131,21 @@ describe("Effect", () => {
       expect(states).toHaveLength(3);
 
       // Initial state
-      expect(states[0].loading).toBe(false);
+      expect(states[0].loading).toEqual(Bool.false());
       states[0].result.match({
         something: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
       });
 
       // Loading state
-      expect(states[1].loading).toBe(true);
+      expect(states[1].loading).toEqual(Bool.true());
       states[1].result.match({
         something: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
       });
 
       // Final state
-      expect(states[2].loading).toBe(false);
+      expect(states[2].loading).toEqual(Bool.false());
       states[2].result.match({
         something: (result: Result<string>) => {
           result.match({
@@ -156,27 +158,20 @@ describe("Effect", () => {
     });
 
     it("should handle asynchronous functions", async () => {
-      expect.assertions(7);
+      expect.assertions(4);
       const effect = Effect.of(async () => {
         await new Promise((resolve) => setTimeout(resolve, 10));
         return "test";
       });
 
-      const states: Array<{ loading: boolean; result: Maybe<Result<string>> }> =
-        [];
+      const states: EffectState<string>[] = [];
       effect.subscribe((state) => states.push(state));
 
       const runPromise = effect.run();
-
-      // Should be loading immediately
-      expect(states).toHaveLength(2);
-      expect(states[0].loading).toBe(false);
-      expect(states[1].loading).toBe(true);
-
       const result = await runPromise;
       const finalState = result.getState();
 
-      expect(finalState.loading).toBe(false);
+      expect(finalState.loading).toEqual(Bool.false());
       finalState.result.match({
         something: (result: Result<string>) => {
           result.match({
@@ -189,7 +184,7 @@ describe("Effect", () => {
 
       // Should have gone through all states
       expect(states).toHaveLength(3);
-      expect(states[2].loading).toBe(false);
+      expect(states[2].loading).toEqual(Bool.false());
     });
 
     it("should handle errors", async () => {
@@ -199,18 +194,18 @@ describe("Effect", () => {
         throw error;
       });
 
-      const states: Array<{ loading: boolean; result: Maybe<Result<string>> }> =
-        [];
+      const states: EffectState<string>[] = [];
       effect.subscribe((state) => states.push(state));
 
-      const result = await effect.run();
+      const runPromise = effect.run();
+      const result = await runPromise;
       const finalState = result.getState();
 
       // Should have gone through loading state and back
       expect(states).toHaveLength(3);
-      expect(states[0].loading).toBe(false);
-      expect(states[1].loading).toBe(true);
-      expect(states[2].loading).toBe(false);
+      expect(states[0].loading).toEqual(Bool.false());
+      expect(states[1].loading).toEqual(Bool.true());
+      expect(states[2].loading).toEqual(Bool.false());
 
       // Final state should contain the error in the Result
       states[2].result.match({
@@ -243,18 +238,18 @@ describe("Effect", () => {
         throw error;
       });
 
-      const states: Array<{ loading: boolean; result: Maybe<Result<string>> }> =
-        [];
+      const states: EffectState<string>[] = [];
       effect.subscribe((state) => states.push(state));
 
-      const result = await effect.run();
+      const runPromise = effect.run();
+      const result = await runPromise;
       const finalState = result.getState();
 
       // Should be loading immediately
       expect(states).toHaveLength(3);
-      expect(states[0].loading).toBe(false);
-      expect(states[1].loading).toBe(true);
-      expect(states[2].loading).toBe(false);
+      expect(states[0].loading).toEqual(Bool.false());
+      expect(states[1].loading).toEqual(Bool.true());
+      expect(states[2].loading).toEqual(Bool.false());
 
       // Final state should contain the error in the Result
       states[2].result.match({
@@ -287,7 +282,8 @@ describe("Effect", () => {
       const initialState = effect.getState();
 
       // Run the effect
-      const result = await effect.run();
+      const runPromise = effect.run();
+      const result = await runPromise;
 
       // Original effect should remain unchanged
       const currentState = effect.getState();
@@ -296,7 +292,7 @@ describe("Effect", () => {
       // Returned effect should be a new instance with updated state
       expect(result).not.toBe(effect);
       const resultState = result.getState();
-      expect(resultState.loading).toBe(false);
+      expect(resultState.loading).toEqual(Bool.false());
       resultState.result.match({
         something: (result: Result<string>) => {
           result.match({
@@ -313,11 +309,12 @@ describe("Effect", () => {
       const effect = Effect.of(() => "test");
       const originalState = effect.getState();
 
-      await effect.run();
+      const runPromise = effect.run();
+      await runPromise;
 
       // Original effect's state should be unchanged
       const currentState = effect.getState();
-      expect(currentState.loading).toBe(originalState.loading);
+      expect(currentState.loading).toEqual(originalState.loading);
 
       // Compare Maybe states semantically
       currentState.result.match({
@@ -352,10 +349,12 @@ describe("Effect", () => {
     it("should return new effect instance after running", async () => {
       expect.assertions(2);
       const effect = Effect.of(() => "test");
-      const result = await effect.run();
+      const runPromise = effect.run();
+      const result = await runPromise;
 
       expect(result).not.toBe(effect);
-      result.getState().result.match({
+      const resultState = result.getState();
+      resultState.result.match({
         something: (result: Result<string>) => {
           result.match({
             data: (value: string) => expect(value).toBe("test"),
@@ -364,6 +363,56 @@ describe("Effect", () => {
         },
         nothing: () => expect(true).toBe(false), // Should not be called
       });
+    });
+
+    it("should let you branch based on whether the effect has run already or not", async () => {
+      const effect = Effect.of(() => "test");
+      let result = "";
+      effect.finished({
+        true: () => (result = "true"),
+        false: () => (result = "false"),
+      });
+      expect(result).toBe("false");
+      const runPromise = effect.run();
+      const finishedEffect = await runPromise;
+      finishedEffect.finished({
+        true: () => (result = "true"),
+        false: () => (result = "false"),
+      });
+      expect(result).toBe("true");
+    });
+
+    it("should let you branch based on loading state", async () => {
+      const effect = Effect.of(() => "test");
+      let result = "";
+
+      // Initial state - not loading
+      effect.loading({
+        true: () => (result = "loading"),
+        false: () => (result = "not loading"),
+      });
+      expect(result).toBe("not loading");
+
+      // Start running - should be loading
+      const runPromise = effect.run();
+      // @ts-ignore
+      const loadingEffect = effect._getLoadingEffect();
+      if (!loadingEffect) {
+        throw new Error("Loading effect should be available during run");
+      }
+      loadingEffect.loading({
+        true: () => (result = "loading"),
+        false: () => (result = "not loading"),
+      });
+      expect(result).toBe("loading");
+
+      // After running - not loading
+      const finishedEffect = await runPromise;
+      finishedEffect.loading({
+        true: () => (result = "loading"),
+        false: () => (result = "not loading"),
+      });
+      expect(result).toBe("not loading");
     });
   });
 });

@@ -2,7 +2,7 @@ import { Result } from "../Result/Result";
 import { Maybe } from "../Maybe/Maybe";
 import { Bool } from "../Bool/Bool";
 
-type EffectState<T> = {
+export type EffectState<T> = {
   loading: Bool;
   result: Maybe<Result<T>>;
 };
@@ -47,12 +47,6 @@ export class Effect<T> {
     };
   }
 
-  private setState(newState: Partial<EffectState<T>>) {
-    this.state = { ...this.state, ...newState };
-    // Notify all subscribers of the state change
-    this.subscribers.forEach((subscriber) => subscriber(this.getState()));
-  }
-
   async run(): Promise<Effect<T>> {
     // Notify subscribers of loading state
     const loadingEffect = new Effect<T>({
@@ -63,6 +57,9 @@ export class Effect<T> {
     this.subscribers.forEach((subscriber) =>
       subscriber(loadingEffect.getState())
     );
+
+    // Store loading effect for testing
+    (this as any)._loadingEffect = loadingEffect;
 
     try {
       const value = await this.fn();
@@ -76,6 +73,8 @@ export class Effect<T> {
       this.subscribers.forEach((subscriber) =>
         subscriber(finalEffect.getState())
       );
+      // Clear loading effect
+      (this as any)._loadingEffect = undefined;
       return finalEffect;
     } catch (error: unknown) {
       const errorMessage =
@@ -92,7 +91,38 @@ export class Effect<T> {
       this.subscribers.forEach((subscriber) =>
         subscriber(finalEffect.getState())
       );
+      // Clear loading effect
+      (this as any)._loadingEffect = undefined;
       return finalEffect;
     }
+  }
+
+  // For testing only
+  _getLoadingEffect(): Effect<T> | undefined {
+    return (this as any)._loadingEffect;
+  }
+
+  finished(matcher: {
+    true: (state: EffectState<T>) => void;
+    false: () => void;
+  }): void {
+    const state = this.getState();
+    state.loading.match({
+      true: () => matcher.false(),
+      false: () => {
+        state.result.match({
+          something: () => matcher.true(state),
+          nothing: () => matcher.false(),
+        });
+      },
+    });
+  }
+
+  loading(matcher: { true: () => void; false: () => void }): void {
+    const state = this.getState();
+    state.loading.match({
+      true: () => matcher.true(),
+      false: () => matcher.false(),
+    });
   }
 }
