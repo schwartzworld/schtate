@@ -1,7 +1,7 @@
 import { Result } from "../Result/Result";
 import { Maybe } from "../Maybe/Maybe";
 
-class Effect<T> {
+export class Effect<T> {
   private fn: () => Promise<T> | T;
   private result: Maybe<Result<T>>;
 
@@ -28,10 +28,3 @@ class Effect<T> {
     });
   }
 }
-
-const example = async () => {
-  const E = Effect.of(() => "hello world");
-  return E.run();
-};
-
-example();
