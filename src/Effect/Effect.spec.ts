@@ -20,5 +20,7 @@ describe("Effect", () => {
         expect(error).toBe("Test failure, baby");
       });
     });
+
+    expect(result.loading).toBe(false);
   });
 });
