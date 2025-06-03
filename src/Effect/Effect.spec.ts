@@ -1,7 +1,7 @@
-import { Effect, EffectState } from "./Effect";
-import { Result } from "../Result/Result";
-import { Maybe } from "../Maybe/Maybe";
-import { Bool } from "../Bool/Bool";
+import { Effect, EffectState } from "./Effect.js";
+import { Result } from "../Result/Result.js";
+import { Maybe } from "../Maybe/Maybe.js";
+import { Bool } from "../Bool/Bool.js";
 
 describe("Effect", () => {
   describe("constructor", () => {

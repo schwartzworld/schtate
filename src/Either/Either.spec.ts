@@ -1,4 +1,4 @@
-import { Either } from "./Either";
+import { Either } from "./Either.js";
 
 describe("Either Monad Tests", () => {
   it("can create a Left or Right either", () => {

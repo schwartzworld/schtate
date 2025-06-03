@@ -1,16 +1,11 @@
-import { defineConfig } from 'tsup'
+import { defineConfig } from "tsup";
 
 export default defineConfig({
-  entry: ['src/index.ts'],
-  format: ['esm', 'cjs'],
+  entry: ["src/index.ts"],
+  format: ["esm", "cjs"],
   dts: true,
   splitting: false,
-  sourcemap: true,
+  sourcemap: process.env.NODE_ENV === "production",
   clean: true,
-  outDir: 'build',
-  esbuildOptions(options) {
-    options.banner = {
-      js: '"use client";',
-    }
-  },
-}) 
+  outDir: "build",
+});

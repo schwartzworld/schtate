@@ -1,4 +1,4 @@
-import { Bool } from "./Bool";
+import { Bool } from "./Bool.js";
 
 describe("Bool tests", () => {
   describe("build a Bool", () => {

@@ -1,6 +1,6 @@
-import { Result } from "../Result/Result";
-import { Maybe } from "../Maybe/Maybe";
-import { Bool } from "../Bool/Bool";
+import { Result } from "../Result/Result.js";
+import { Maybe } from "../Maybe/Maybe.js";
+import { Bool } from "../Bool/Bool.js";
 
 export type EffectState<T> = {
   loading: Bool;

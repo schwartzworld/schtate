@@ -1,16 +1,14 @@
-import { Validation } from "./Validation";
+import { Validation } from "./Validation.js";
 
 describe("Validation", () => {
   describe("single field validation", () => {
     it("should validate a single field successfully", () => {
-      const nameValidation = Validation.validateField(
-        "name",
-        "John",
-        [
-          (value) => value.length < 2 ? "Name must be at least 2 characters" : null,
-          (value) => value.length > 50 ? "Name must be at most 50 characters" : null,
-        ]
-      );
+      const nameValidation = Validation.validateField("name", "John", [
+        (value) =>
+          value.length < 2 ? "Name must be at least 2 characters" : null,
+        (value) =>
+          value.length > 50 ? "Name must be at most 50 characters" : null,
+      ]);
 
       nameValidation.match({
         success: (value) => expect(value).toBe("John"),
@@ -19,14 +17,11 @@ describe("Validation", () => {
     });
 
     it("should collect all validation errors for a field", () => {
-      const nameValidation = Validation.validateField(
-        "name",
-        "",
-        [
-          (value) => value.length < 2 ? "Name must be at least 2 characters" : null,
-          (value) => /[0-9]/.test(value) ? "Name cannot contain numbers" : null,
-        ]
-      );
+      const nameValidation = Validation.validateField("name", "", [
+        (value) =>
+          value.length < 2 ? "Name must be at least 2 characters" : null,
+        (value) => (/[0-9]/.test(value) ? "Name cannot contain numbers" : null),
+      ]);
 
       nameValidation.match({
         success: () => fail("Should not have succeeded"),
@@ -48,19 +43,19 @@ describe("Validation", () => {
     };
 
     it("should combine multiple successful validations", () => {
-      const nameValidation = Validation.validateField<string>(
-        "name",
-        "John",
-        [(value) => value.length < 2 ? "Name must be at least 2 characters" : null]
-      );
+      const nameValidation = Validation.validateField<string>("name", "John", [
+        (value) =>
+          value.length < 2 ? "Name must be at least 2 characters" : null,
+      ]);
 
-      const ageValidation = Validation.validateField<number>(
-        "age",
-        25,
-        [(value) => value < 18 ? "Must be at least 18 years old" : null]
-      );
+      const ageValidation = Validation.validateField<number>("age", 25, [
+        (value) => (value < 18 ? "Must be at least 18 years old" : null),
+      ]);
 
-      const combined = Validation.combine<[string, number]>([nameValidation, ageValidation]);
+      const combined = Validation.combine<[string, number]>([
+        nameValidation,
+        ageValidation,
+      ]);
 
       combined.match({
         success: ([name, age]) => {
@@ -72,19 +67,19 @@ describe("Validation", () => {
     });
 
     it("should collect all errors when combining validations", () => {
-      const nameValidation = Validation.validateField<string>(
-        "name",
-        "",
-        [(value) => value.length < 2 ? "Name must be at least 2 characters" : null]
-      );
+      const nameValidation = Validation.validateField<string>("name", "", [
+        (value) =>
+          value.length < 2 ? "Name must be at least 2 characters" : null,
+      ]);
 
-      const ageValidation = Validation.validateField<number>(
-        "age",
-        15,
-        [(value) => value < 18 ? "Must be at least 18 years old" : null]
-      );
+      const ageValidation = Validation.validateField<number>("age", 15, [
+        (value) => (value < 18 ? "Must be at least 18 years old" : null),
+      ]);
 
-      const combined = Validation.combine<[string, number]>([nameValidation, ageValidation]);
+      const combined = Validation.combine<[string, number]>([
+        nameValidation,
+        ageValidation,
+      ]);
 
       combined.match({
         success: () => fail("Should not have succeeded"),
@@ -106,7 +101,9 @@ describe("Validation", () => {
   describe("applicative validation", () => {
     it("should apply a function to a successful validation", () => {
       const nameValidation = Validation.success("John");
-      const fnValidation = Validation.success<(name: string) => string>((name) => name.toUpperCase());
+      const fnValidation = Validation.success<(name: string) => string>(
+        (name) => name.toUpperCase()
+      );
 
       const result = nameValidation.ap(fnValidation);
 
@@ -142,4 +139,4 @@ describe("Validation", () => {
       });
     });
   });
-}); 
+});

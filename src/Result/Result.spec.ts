@@ -1,4 +1,4 @@
-import { Result } from "./Result";
+import { Result } from "./Result.js";
 import { Maybe } from "../Maybe/Maybe.js";
 
 describe("Result tests", () => {

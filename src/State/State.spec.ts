@@ -1,4 +1,4 @@
-import { State } from "./State";
+import { State } from "./State.js";
 
 describe("State Monad Tests", () => {
   it("has methods that create a State", () => {

@@ -1,5 +1,5 @@
 import { Either } from "../Either/Either.js";
-import { Maybe } from "../Maybe/Maybe";
+import { Maybe } from "../Maybe/Maybe.js";
 
 export class Bool {
   private value: boolean;

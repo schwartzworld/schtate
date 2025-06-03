@@ -1,5 +1,5 @@
-import { Maybe } from "./Maybe";
-import { nothing } from "./nothing";
+import { Maybe } from "./Maybe.js";
+import { nothing } from "./nothing.js";
 
 describe("Maybe Monad Tests", () => {
   it("has methods that create a maybe", () => {
