@@ -98,7 +98,7 @@ export class Effect<T> {
   }
 
   // For testing only
-  _getLoadingEffect(): Effect<T> | undefined {
+  private _getLoadingEffect(): Effect<T> | undefined {
     return (this as any)._loadingEffect;
   }
 
