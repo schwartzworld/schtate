@@ -1,4 +1,5 @@
-import { State } from "./State";
+import { jest, expect, describe, it } from "@jest/globals";
+import { State } from "./State.js";
 
 describe("State Monad Tests", () => {
   it("has methods that create a State", () => {

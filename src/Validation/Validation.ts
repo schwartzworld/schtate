@@ -1,7 +1,11 @@
 import { Either } from "../Either/Either.js";
 import { Mappable } from "../types/Mappable.js";
 import { deepClone } from "../utils/deepClone.js";
-import { ValidationError, ValidationErrors, createValidationErrors } from "./ValidationErrors.js";
+import {
+  ValidationError,
+  ValidationErrors,
+  createValidationErrors,
+} from "./ValidationErrors.js";
 
 export class Validation<T> implements Mappable<T> {
   private value: Either<T, ValidationErrors>;
@@ -22,9 +26,9 @@ export class Validation<T> implements Mappable<T> {
     return new Validation(Either.right(createValidationErrors(errors)));
   }
 
-  static combine<T extends unknown[]>(
-    validations: { [K in keyof T]: Validation<T[K]> }
-  ): Validation<T> {
+  static combine<T extends unknown[]>(validations: {
+    [K in keyof T]: Validation<T[K]>;
+  }): Validation<T> {
     const allErrors: ValidationError[] = [];
     const values: unknown[] = [];
 
@@ -49,7 +53,9 @@ export class Validation<T> implements Mappable<T> {
     );
   }
 
-  mapError(fn: (errors: ValidationError[]) => ValidationError[]): Validation<T> {
+  mapError(
+    fn: (errors: ValidationError[]) => ValidationError[]
+  ): Validation<T> {
     return new Validation(
       this.value.map({
         left: (val) => val,
@@ -83,7 +89,8 @@ export class Validation<T> implements Mappable<T> {
       failure: (errors) =>
         other.match({
           success: () => Validation.failure(errors),
-          failure: (otherErrors) => Validation.failure([...errors, ...otherErrors]),
+          failure: (otherErrors) =>
+            Validation.failure([...errors, ...otherErrors]),
         }),
     });
   }
@@ -103,4 +110,4 @@ export class Validation<T> implements Mappable<T> {
       ? Validation.success(value)
       : Validation.failure(errors);
   }
-} 
+}

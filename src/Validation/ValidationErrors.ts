@@ -8,4 +8,5 @@ export class ValidationErrors {
   isValidationErrors = true;
 }
 
-export const createValidationErrors = (errors: ValidationError[]) => new ValidationErrors(errors); 
+export const createValidationErrors = (errors: ValidationError[]) =>
+  new ValidationErrors(errors);

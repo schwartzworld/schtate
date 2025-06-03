@@ -11,6 +11,7 @@ node_modules
 !.yarn/sdks
 !.yarn/versions
 .pnp.*
+*.tgz
 
 # Build
 build/

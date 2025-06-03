@@ -1,4 +1,5 @@
-import { Bool } from "./Bool";
+import { jest, expect, describe, it } from "@jest/globals";
+import { Bool } from "./Bool.js";
 
 describe("Bool tests", () => {
   describe("build a Bool", () => {
