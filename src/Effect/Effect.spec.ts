@@ -1,4 +1,4 @@
-import { Effect, EffectState } from "./Effect.js";
+import { Effect } from "./Effect.js";
 import { Result } from "../Result/Result.js";
 import { Maybe } from "../Maybe/Maybe.js";
 import { Bool } from "../Bool/Bool.js";
@@ -8,11 +8,16 @@ describe("Effect", () => {
     it("should create an effect with default state", () => {
       expect.assertions(2);
       const effect = Effect.of(() => "test");
-      const state = effect.getState();
 
-      expect(state.loading).toEqual(Bool.false());
-      state.result.match({
-        something: () => expect(true).toBe(false), // Should not be called
+      effect.loading({
+        true: () => expect(true).toBe(false), // Should not be called
+        false: () => expect(true).toBe(true),
+      });
+
+      effect.match({
+        data: () => expect(true).toBe(false), // Should not be called
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(true),
       });
     });
@@ -27,34 +32,65 @@ describe("Effect", () => {
         loading: Bool.true(),
       });
 
-      const state = effect.getState();
-      expect(state.loading).toEqual(Bool.true());
-      expect(state.result).toBe(maybeResult);
+      effect.loading({
+        true: () => expect(true).toBe(true),
+        false: () => expect(true).toBe(false), // Should not be called
+      });
+
+      effect.match({
+        data: () => expect(true).toBe(false), // Should not be called
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(true), // Should be called since loading is true
+        nothing: () => expect(true).toBe(false), // Should not be called
+      });
     });
   });
 
   describe("subscription", () => {
     it("should notify subscribers of initial state", () => {
-      expect.assertions(3);
+      expect.assertions(2);
       const effect = Effect.of(() => "test");
-      const states: EffectState<string>[] = [];
+      let loadingState = false;
+      let matchState = "";
 
-      effect.subscribe((state) => states.push(state));
-
-      expect(states).toHaveLength(1);
-      expect(states[0].loading).toEqual(Bool.false());
-      states[0].result.match({
-        something: () => expect(true).toBe(false), // Should not be called
-        nothing: () => expect(true).toBe(true),
+      effect.subscribe((state) => {
+        state.loading.match({
+          true: () => (loadingState = true),
+          false: () => (loadingState = false),
+        });
+        state.result.match({
+          something: () => (matchState = "something"),
+          nothing: () => (matchState = "nothing"),
+        });
       });
+
+      expect(loadingState).toBe(false);
+      expect(matchState).toBe("nothing");
     });
 
     it("should notify subscribers of state changes", async () => {
-      expect.assertions(7);
+      expect.assertions(8);
       const effect = Effect.of(() => "test");
-      const states: EffectState<string>[] = [];
+      const states: { loading: boolean; matchState: string }[] = [];
 
-      effect.subscribe((state) => states.push(state));
+      effect.subscribe((state) => {
+        let loadingState = false;
+        let matchState = "";
+        state.loading.match({
+          true: () => (loadingState = true),
+          false: () => (loadingState = false),
+        });
+        state.result.match({
+          something: (result) => {
+            result.match({
+              data: () => (matchState = "data"),
+              error: () => (matchState = "error"),
+            });
+          },
+          nothing: () => (matchState = "nothing"),
+        });
+        states.push({ loading: loadingState, matchState });
+      });
 
       const runPromise = effect.run();
       const result = await runPromise;
@@ -63,28 +99,22 @@ describe("Effect", () => {
       expect(states).toHaveLength(3);
 
       // Initial state
-      expect(states[0].loading).toEqual(Bool.false());
-      states[0].result.match({
-        something: () => expect(true).toBe(false), // Should not be called
-        nothing: () => expect(true).toBe(true),
-      });
+      expect(states[0].loading).toBe(false);
+      expect(states[0].matchState).toBe("nothing");
 
       // Loading state
-      expect(states[1].loading).toEqual(Bool.true());
-      states[1].result.match({
-        something: () => expect(true).toBe(false), // Should not be called
-        nothing: () => expect(true).toBe(true),
-      });
+      expect(states[1].loading).toBe(true);
+      expect(states[1].matchState).toBe("nothing");
 
       // Final state
-      expect(states[2].loading).toEqual(Bool.false());
-      states[2].result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
+      expect(states[2].loading).toBe(false);
+      expect(states[2].matchState).toBe("data");
+
+      // Verify final effect state
+      result.match({
+        data: (value) => expect(value).toBe("test"),
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
@@ -106,170 +136,186 @@ describe("Effect", () => {
 
   describe("run", () => {
     it("should handle synchronous functions", async () => {
-      expect.assertions(9);
+      expect.assertions(8);
       const effect = Effect.of(() => "test");
-      const states: EffectState<string>[] = [];
+      const states: { loading: boolean; matchState: string }[] = [];
 
-      effect.subscribe((state) => states.push(state));
+      effect.subscribe((state) => {
+        let loadingState = false;
+        let matchState = "";
+        state.loading.match({
+          true: () => (loadingState = true),
+          false: () => (loadingState = false),
+        });
+        state.result.match({
+          something: (result) => {
+            result.match({
+              data: () => (matchState = "data"),
+              error: () => (matchState = "error"),
+            });
+          },
+          nothing: () => (matchState = "nothing"),
+        });
+        states.push({ loading: loadingState, matchState });
+      });
 
       const runPromise = effect.run();
       const result = await runPromise;
-      const finalState = result.getState();
-
-      expect(finalState.loading).toEqual(Bool.false());
-      finalState.result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
-        nothing: () => expect(true).toBe(false), // Should not be called
-      });
 
       // Should go through all states: initial -> loading -> final
       expect(states).toHaveLength(3);
 
       // Initial state
-      expect(states[0].loading).toEqual(Bool.false());
-      states[0].result.match({
-        something: () => expect(true).toBe(false), // Should not be called
-        nothing: () => expect(true).toBe(true),
-      });
+      expect(states[0].loading).toBe(false);
+      expect(states[0].matchState).toBe("nothing");
 
       // Loading state
-      expect(states[1].loading).toEqual(Bool.true());
-      states[1].result.match({
-        something: () => expect(true).toBe(false), // Should not be called
-        nothing: () => expect(true).toBe(true),
-      });
+      expect(states[1].loading).toBe(true);
+      expect(states[1].matchState).toBe("nothing");
 
       // Final state
-      expect(states[2].loading).toEqual(Bool.false());
-      states[2].result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
+      expect(states[2].loading).toBe(false);
+      expect(states[2].matchState).toBe("data");
+
+      // Verify final effect state
+      result.match({
+        data: (value) => expect(value).toBe("test"),
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
 
     it("should handle asynchronous functions", async () => {
-      expect.assertions(4);
+      expect.assertions(3);
       const effect = Effect.of(async () => {
         await new Promise((resolve) => setTimeout(resolve, 10));
         return "test";
       });
 
-      const states: EffectState<string>[] = [];
-      effect.subscribe((state) => states.push(state));
+      const states: { loading: boolean; matchState: string }[] = [];
+      effect.subscribe((state) => {
+        let loadingState = false;
+        let matchState = "";
+        state.loading.match({
+          true: () => (loadingState = true),
+          false: () => (loadingState = false),
+        });
+        state.result.match({
+          something: (result) => {
+            result.match({
+              data: () => (matchState = "data"),
+              error: () => (matchState = "error"),
+            });
+          },
+          nothing: () => (matchState = "nothing"),
+        });
+        states.push({ loading: loadingState, matchState });
+      });
 
       const runPromise = effect.run();
       const result = await runPromise;
-      const finalState = result.getState();
 
-      expect(finalState.loading).toEqual(Bool.false());
-      finalState.result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
+      // Should go through all states: initial -> loading -> final
+      expect(states).toHaveLength(3);
+      expect(states[2].loading).toBe(false);
+
+      // Verify final effect state
+      result.match({
+        data: (value) => expect(value).toBe("test"),
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
-
-      // Should have gone through all states
-      expect(states).toHaveLength(3);
-      expect(states[2].loading).toEqual(Bool.false());
     });
 
     it("should handle errors", async () => {
-      expect.assertions(6);
+      expect.assertions(5);
       const error = new Error("test error");
       const effect = Effect.of<string>(() => {
         throw error;
       });
 
-      const states: EffectState<string>[] = [];
-      effect.subscribe((state) => states.push(state));
+      const states: { loading: boolean; matchState: string }[] = [];
+      effect.subscribe((state) => {
+        let loadingState = false;
+        let matchState = "";
+        state.loading.match({
+          true: () => (loadingState = true),
+          false: () => (loadingState = false),
+        });
+        state.result.match({
+          something: (result) => {
+            result.match({
+              data: () => (matchState = "data"),
+              error: () => (matchState = "error"),
+            });
+          },
+          nothing: () => (matchState = "nothing"),
+        });
+        states.push({ loading: loadingState, matchState });
+      });
 
       const runPromise = effect.run();
       const result = await runPromise;
-      const finalState = result.getState();
 
-      // Should have gone through loading state and back
+      // Should go through all states: initial -> loading -> final
       expect(states).toHaveLength(3);
-      expect(states[0].loading).toEqual(Bool.false());
-      expect(states[1].loading).toEqual(Bool.true());
-      expect(states[2].loading).toEqual(Bool.false());
+      expect(states[0].loading).toBe(false);
+      expect(states[1].loading).toBe(true);
+      expect(states[2].loading).toBe(false);
 
-      // Final state should contain the error in the Result
-      states[2].result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: () => expect(true).toBe(false), // Should not be called
-            error: (err) => expect(err).toBe(error.message),
-          });
-        },
-        nothing: () => expect(true).toBe(false), // Should not be called
-      });
-
-      // Returned effect should have the error in its state
-      finalState.result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: () => expect(true).toBe(false), // Should not be called
-            error: (err) => expect(err).toBe(error.message),
-          });
-        },
+      // Verify final effect state
+      result.match({
+        data: () => expect(true).toBe(false), // Should not be called
+        error: (err) => expect(err).toBe(error.message),
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
 
     it("should handle async errors", async () => {
-      expect.assertions(6);
+      expect.assertions(5);
       const error = new Error("test error");
       const effect = Effect.of<string>(async () => {
         await new Promise((resolve) => setTimeout(resolve, 10));
         throw error;
       });
 
-      const states: EffectState<string>[] = [];
-      effect.subscribe((state) => states.push(state));
+      const states: { loading: boolean; matchState: string }[] = [];
+      effect.subscribe((state) => {
+        let loadingState = false;
+        let matchState = "";
+        state.loading.match({
+          true: () => (loadingState = true),
+          false: () => (loadingState = false),
+        });
+        state.result.match({
+          something: (result) => {
+            result.match({
+              data: () => (matchState = "data"),
+              error: () => (matchState = "error"),
+            });
+          },
+          nothing: () => (matchState = "nothing"),
+        });
+        states.push({ loading: loadingState, matchState });
+      });
 
       const runPromise = effect.run();
       const result = await runPromise;
-      const finalState = result.getState();
 
-      // Should be loading immediately
+      // Should go through all states: initial -> loading -> final
       expect(states).toHaveLength(3);
-      expect(states[0].loading).toEqual(Bool.false());
-      expect(states[1].loading).toEqual(Bool.true());
-      expect(states[2].loading).toEqual(Bool.false());
+      expect(states[0].loading).toBe(false);
+      expect(states[1].loading).toBe(true);
+      expect(states[2].loading).toBe(false);
 
-      // Final state should contain the error in the Result
-      states[2].result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: () => expect(true).toBe(false), // Should not be called
-            error: (err) => expect(err).toBe(error.message),
-          });
-        },
-        nothing: () => expect(true).toBe(false), // Should not be called
-      });
-
-      // Returned effect should have the error in its state
-      finalState.result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: () => expect(true).toBe(false), // Should not be called
-            error: (err) => expect(err).toBe(error.message),
-          });
-        },
+      // Verify final effect state
+      result.match({
+        data: () => expect(true).toBe(false), // Should not be called
+        error: (err) => expect(err).toBe(error.message),
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
@@ -279,27 +325,47 @@ describe("Effect", () => {
     it("should update original effect state during run but return new instance", async () => {
       expect.assertions(4);
       const effect = Effect.of(() => "test");
-      const initialState = effect.getState();
+      let initialLoading = false;
+      let initialMatchState = "";
+
+      effect.loading({
+        true: () => (initialLoading = true),
+        false: () => (initialLoading = false),
+      });
+      effect.match({
+        data: () => (initialMatchState = "data"),
+        error: () => (initialMatchState = "error"),
+        loading: () => (initialMatchState = "loading"),
+        nothing: () => (initialMatchState = "nothing"),
+      });
 
       // Run the effect
       const runPromise = effect.run();
       const result = await runPromise;
 
       // Original effect should remain unchanged
-      const currentState = effect.getState();
-      expect(currentState).toEqual(initialState);
+      let currentLoading = false;
+      let currentMatchState = "";
+      effect.loading({
+        true: () => (currentLoading = true),
+        false: () => (currentLoading = false),
+      });
+      effect.match({
+        data: () => (currentMatchState = "data"),
+        error: () => (currentMatchState = "error"),
+        loading: () => (currentMatchState = "loading"),
+        nothing: () => (currentMatchState = "nothing"),
+      });
+
+      expect(currentLoading).toBe(initialLoading);
+      expect(currentMatchState).toBe(initialMatchState);
 
       // Returned effect should be a new instance with updated state
       expect(result).not.toBe(effect);
-      const resultState = result.getState();
-      expect(resultState.loading).toEqual(Bool.false());
-      resultState.result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
+      result.match({
+        data: (value) => expect(value).toBe("test"),
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
@@ -307,43 +373,39 @@ describe("Effect", () => {
     it("should not mutate original effect when running", async () => {
       expect.assertions(2);
       const effect = Effect.of(() => "test");
-      const originalState = effect.getState();
+      let initialLoading = false;
+      let initialMatchState = "";
+
+      effect.loading({
+        true: () => (initialLoading = true),
+        false: () => (initialLoading = false),
+      });
+      effect.match({
+        data: () => (initialMatchState = "data"),
+        error: () => (initialMatchState = "error"),
+        loading: () => (initialMatchState = "loading"),
+        nothing: () => (initialMatchState = "nothing"),
+      });
 
       const runPromise = effect.run();
       await runPromise;
 
       // Original effect's state should be unchanged
-      const currentState = effect.getState();
-      expect(currentState.loading).toEqual(originalState.loading);
-
-      // Compare Maybe states semantically
-      currentState.result.match({
-        something: (currentResult: Result<string>) => {
-          originalState.result.match({
-            something: (originalResult: Result<string>) => {
-              // Both should be something
-              currentResult.match({
-                data: (currentValue: string) => {
-                  originalResult.match({
-                    data: (originalValue: string) => {
-                      expect(currentValue).toBe(originalValue);
-                    },
-                    error: () => expect(true).toBe(false), // Should not be called
-                  });
-                },
-                error: () => expect(true).toBe(false), // Should not be called
-              });
-            },
-            nothing: () => expect(true).toBe(false), // Should not be called
-          });
-        },
-        nothing: () => {
-          originalState.result.match({
-            something: () => expect(true).toBe(false), // Should not be called
-            nothing: () => expect(true).toBe(true), // Both should be nothing
-          });
-        },
+      let currentLoading = false;
+      let currentMatchState = "";
+      effect.loading({
+        true: () => (currentLoading = true),
+        false: () => (currentLoading = false),
       });
+      effect.match({
+        data: () => (currentMatchState = "data"),
+        error: () => (currentMatchState = "error"),
+        loading: () => (currentMatchState = "loading"),
+        nothing: () => (currentMatchState = "nothing"),
+      });
+
+      expect(currentLoading).toBe(initialLoading);
+      expect(currentMatchState).toBe(initialMatchState);
     });
 
     it("should return new effect instance after running", async () => {
@@ -353,14 +415,10 @@ describe("Effect", () => {
       const result = await runPromise;
 
       expect(result).not.toBe(effect);
-      const resultState = result.getState();
-      resultState.result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
+      result.match({
+        data: (value) => expect(value).toBe("test"),
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
@@ -383,7 +441,10 @@ describe("Effect", () => {
     });
 
     it("should let you branch based on loading state", async () => {
-      const effect = Effect.of(() => "test");
+      const effect = Effect.of(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return "test";
+      });
       let result = "";
 
       // Initial state - not loading
@@ -393,19 +454,28 @@ describe("Effect", () => {
       });
       expect(result).toBe("not loading");
 
-      // Start running - should be loading
-      const runPromise = effect.run();
-      const loadingEffect = effect.getLoadingEffect();
-      if (!loadingEffect) {
-        throw new Error("Loading effect should be available during run");
-      }
-      loadingEffect.loading({
-        true: () => (result = "loading"),
-        false: () => (result = "not loading"),
+      // Track state changes BEFORE starting the effect
+      const states: { loading: boolean }[] = [];
+      effect.subscribe((state) => {
+        state.loading.match({
+          true: () => states.push({ loading: true }),
+          false: () => states.push({ loading: false }),
+        });
       });
-      expect(result).toBe("loading");
 
-      // After running - not loading
+      // Now start running the effect
+      const runPromise = effect.run();
+
+      // Wait for the effect to complete
+      await runPromise;
+
+      // Verify state transitions
+      expect(states).toHaveLength(3); // initial -> loading -> final
+      expect(states[0].loading).toBe(false); // initial state
+      expect(states[1].loading).toBe(true); // loading state
+      expect(states[2].loading).toBe(false); // final state
+
+      // Verify final state
       const finishedEffect = await runPromise;
       finishedEffect.loading({
         true: () => (result = "loading"),
@@ -426,13 +496,10 @@ describe("Effect", () => {
 
       // Run it and verify the result
       const result = await outerEffect.run();
-      result.getState().result.match({
-        something: (result: Result<string>) => {
-          result.match({
-            data: (value: string) => expect(value).toBe("test"),
-            error: () => expect(true).toBe(false), // Should not be called
-          });
-        },
+      result.match({
+        data: (value) => expect(value).toBe("test"),
+        error: () => expect(true).toBe(false), // Should not be called
+        loading: () => expect(true).toBe(false), // Should not be called
         nothing: () => expect(true).toBe(false), // Should not be called
       });
     });
@@ -440,22 +507,18 @@ describe("Effect", () => {
 
   describe("match", () => {
     it("handles loading state", async () => {
-      const effect = Effect.of(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return "success";
+      // Create an effect that's already in a loading state
+      const effect = new Effect<string>({
+        fn: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          return "success";
+        },
+        result: Maybe.nothing<Result<string>>(),
+        loading: Bool.true(),
       });
 
-      // Start running the effect
-      const runPromise = effect.run();
-
-      // Get the loading effect instance
-      const loadingEffect = effect.getLoadingEffect();
-      if (!loadingEffect) {
-        throw new Error("Loading effect should be available during run");
-      }
-
-      // Check loading state while it's running
-      const loadingResult = loadingEffect.match({
+      // Verify it's in loading state
+      const loadingResult = effect.match({
         data: () => "should not be called",
         error: () => "should not be called",
         loading: () => "loading",
@@ -464,8 +527,8 @@ describe("Effect", () => {
 
       expect(loadingResult).toBe("loading");
 
-      // Wait for effect to complete
-      await runPromise;
+      // Run the effect to completion to clean up
+      await effect.run();
     });
 
     it("handles successful data state", async () => {
@@ -513,27 +576,18 @@ describe("Effect", () => {
     });
 
     it("transitions through states correctly", async () => {
-      const effect = Effect.of(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return "success";
+      // Create an effect that's already in a loading state
+      const effect = new Effect<string>({
+        fn: async () => {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          return "success";
+        },
+        result: Maybe.nothing<Result<string>>(),
+        loading: Bool.true(),
       });
 
-      // Check initial nothing state
-      const nothingResult = effect.match({
-        data: () => "should not be called",
-        error: () => "should not be called",
-        loading: () => "should not be called",
-        nothing: () => "nothing",
-      });
-      expect(nothingResult).toBe("nothing");
-
-      // Start running and check loading state
-      const runPromise = effect.run();
-      const loadingEffect = effect.getLoadingEffect();
-      if (!loadingEffect) {
-        throw new Error("Loading effect should be available during run");
-      }
-      const loadingResult = loadingEffect.match({
+      // Check loading state
+      const loadingResult = effect.match({
         data: () => "should not be called",
         error: () => "should not be called",
         loading: () => "loading",
@@ -541,8 +595,10 @@ describe("Effect", () => {
       });
       expect(loadingResult).toBe("loading");
 
-      // Wait for completion and check success state
-      const finishedEffect = await runPromise;
+      // Run the effect to completion
+      const finishedEffect = await effect.run();
+
+      // Check success state
       const successResult = finishedEffect.match({
         data: (value) => value,
         error: () => "should not be called",
@@ -550,6 +606,16 @@ describe("Effect", () => {
         nothing: () => "should not be called",
       });
       expect(successResult).toBe("success");
+
+      // Create a new effect to check nothing state
+      const newEffect = Effect.of(() => "test");
+      const nothingResult = newEffect.match({
+        data: () => "should not be called",
+        error: () => "should not be called",
+        loading: () => "should not be called",
+        nothing: () => "nothing",
+      });
+      expect(nothingResult).toBe("nothing");
     });
   });
 });

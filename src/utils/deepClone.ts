@@ -14,7 +14,7 @@ export const deepClone = <T>(val: T): T => {
 
   // Handle Array objects
   if (Array.isArray(val)) {
-    return val.map(item => deepClone(item)) as unknown as T;
+    return val.map((item) => deepClone(item)) as unknown as T;
   }
 
   // Handle class instances by getting their constructor
@@ -23,9 +23,10 @@ export const deepClone = <T>(val: T): T => {
   if (constructor && constructor !== Object) {
     const clonedInstance = new constructor();
     const entries = Object.entries(val as Record<string, unknown>);
-    Object.assign(clonedInstance, Object.fromEntries(
-      entries.map(([key, value]) => [key, deepClone(value)])
-    ));
+    Object.assign(
+      clonedInstance,
+      Object.fromEntries(entries.map(([key, value]) => [key, deepClone(value)]))
+    );
     return clonedInstance as T;
   }
 
@@ -36,4 +37,4 @@ export const deepClone = <T>(val: T): T => {
     clonedObj[key] = deepClone(value);
   }
   return clonedObj as T;
-}; 
+};

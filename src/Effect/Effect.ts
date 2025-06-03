@@ -40,7 +40,7 @@ export class Effect<T> {
     });
   }
 
-  getState(): EffectState<T> {
+  private getState(): EffectState<T> {
     return { ...this.state };
   }
 
@@ -66,9 +66,6 @@ export class Effect<T> {
       subscriber(loadingEffect.getState())
     );
 
-    // Store loading effect for testing
-    (this as any)._loadingEffect = loadingEffect;
-
     try {
       const value = await this.fn();
       const result = Maybe.of(await Result.of(() => value as T));
@@ -81,8 +78,6 @@ export class Effect<T> {
       this.subscribers.forEach((subscriber) =>
         subscriber(finalEffect.getState())
       );
-      // Clear loading effect
-      (this as any)._loadingEffect = undefined;
       return finalEffect;
     } catch (error: unknown) {
       const errorMessage =
@@ -99,19 +94,12 @@ export class Effect<T> {
       this.subscribers.forEach((subscriber) =>
         subscriber(finalEffect.getState())
       );
-      // Clear loading effect
-      (this as any)._loadingEffect = undefined;
       return finalEffect;
     }
   }
 
-  // For testing only
-  getLoadingEffect(): Effect<T> | undefined {
-    return (this as any)._loadingEffect;
-  }
-
   finished(matcher: {
-    true: (state: EffectState<T>) => void;
+    true: (effect: Effect<T>) => void;
     false: () => void;
   }): void {
     const state = this.getState();
@@ -119,7 +107,7 @@ export class Effect<T> {
       true: () => matcher.false(),
       false: () => {
         state.result.match({
-          something: () => matcher.true(state),
+          something: () => matcher.true(this),
           nothing: () => matcher.false(),
         });
       },
