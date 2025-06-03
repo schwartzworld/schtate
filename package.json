@@ -1,6 +1,6 @@
 {
   "name": "schtate",
-  "version": "0.0.36",
+  "version": "0.0.37",
   "description": "Functional wrappers for state management",
   "type": "module",
   "main": "./build/cjs/index.js",
