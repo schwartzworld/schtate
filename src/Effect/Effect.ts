@@ -28,8 +28,16 @@ export class Effect<T> {
     this.subscribers = new Set();
   }
 
-  static of<T>(fn: () => Promise<T> | T) {
-    return new Effect<T>({ fn });
+  static of<T>(fn: () => Promise<T> | T | Effect<T>) {
+    return new Effect<T>({
+      fn: async () => {
+        const result = await fn();
+        if (result instanceof Effect) {
+          return result.fn();
+        }
+        return result;
+      },
+    });
   }
 
   getState(): EffectState<T> {
@@ -98,7 +106,7 @@ export class Effect<T> {
   }
 
   // For testing only
-  private _getLoadingEffect(): Effect<T> | undefined {
+  getLoadingEffect(): Effect<T> | undefined {
     return (this as any)._loadingEffect;
   }
 
@@ -123,6 +131,28 @@ export class Effect<T> {
     state.loading.match({
       true: () => matcher.true(),
       false: () => matcher.false(),
+    });
+  }
+
+  match<T2>(matcher: {
+    data: (value: T) => T2;
+    error: (error: string) => T2;
+    loading: () => T2;
+    nothing: () => T2;
+  }): T2 {
+    const state = this.getState();
+
+    return state.loading.match({
+      true: () => matcher.loading(),
+      false: () =>
+        state.result.match({
+          something: (result) =>
+            result.match({
+              data: (value) => matcher.data(value),
+              error: (error) => matcher.error(error),
+            }),
+          nothing: () => matcher.nothing(),
+        }),
     });
   }
 }

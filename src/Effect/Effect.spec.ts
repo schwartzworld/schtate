@@ -395,8 +395,7 @@ describe("Effect", () => {
 
       // Start running - should be loading
       const runPromise = effect.run();
-      // @ts-ignore
-      const loadingEffect = effect._getLoadingEffect();
+      const loadingEffect = effect.getLoadingEffect();
       if (!loadingEffect) {
         throw new Error("Loading effect should be available during run");
       }
@@ -413,6 +412,144 @@ describe("Effect", () => {
         false: () => (result = "not loading"),
       });
       expect(result).toBe("not loading");
+    });
+  });
+
+  describe("of", () => {
+    it("should flatten nested Effects", async () => {
+      expect.assertions(2);
+      const innerEffect = Effect.of(() => "test");
+      const outerEffect = Effect.of(() => innerEffect);
+
+      // Verify it's a single Effect
+      expect(outerEffect).toBeInstanceOf(Effect);
+
+      // Run it and verify the result
+      const result = await outerEffect.run();
+      result.getState().result.match({
+        something: (result: Result<string>) => {
+          result.match({
+            data: (value: string) => expect(value).toBe("test"),
+            error: () => expect(true).toBe(false), // Should not be called
+          });
+        },
+        nothing: () => expect(true).toBe(false), // Should not be called
+      });
+    });
+  });
+
+  describe("match", () => {
+    it("handles loading state", async () => {
+      const effect = Effect.of(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return "success";
+      });
+
+      // Start running the effect
+      const runPromise = effect.run();
+
+      // Get the loading effect instance
+      const loadingEffect = effect.getLoadingEffect();
+      if (!loadingEffect) {
+        throw new Error("Loading effect should be available during run");
+      }
+
+      // Check loading state while it's running
+      const loadingResult = loadingEffect.match({
+        data: () => "should not be called",
+        error: () => "should not be called",
+        loading: () => "loading",
+        nothing: () => "should not be called",
+      });
+
+      expect(loadingResult).toBe("loading");
+
+      // Wait for effect to complete
+      await runPromise;
+    });
+
+    it("handles successful data state", async () => {
+      const effect = Effect.of(() => "success");
+      const finishedEffect = await effect.run();
+
+      const result = finishedEffect.match({
+        data: (value) => value,
+        error: () => "should not be called",
+        loading: () => "should not be called",
+        nothing: () => "should not be called",
+      });
+
+      expect(result).toBe("success");
+    });
+
+    it("handles error state", async () => {
+      const effect = Effect.of(() => {
+        throw new Error("test error");
+      });
+      const finishedEffect = await effect.run();
+
+      const result = finishedEffect.match({
+        data: () => "should not be called",
+        error: (error) => error,
+        loading: () => "should not be called",
+        nothing: () => "should not be called",
+      });
+
+      expect(result).toBe("test error");
+    });
+
+    it("handles nothing state", () => {
+      const effect = Effect.of(() => "success");
+      // Don't run the effect, so it stays in nothing state
+
+      const result = effect.match({
+        data: () => "should not be called",
+        error: () => "should not be called",
+        loading: () => "should not be called",
+        nothing: () => "nothing",
+      });
+
+      expect(result).toBe("nothing");
+    });
+
+    it("transitions through states correctly", async () => {
+      const effect = Effect.of(async () => {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        return "success";
+      });
+
+      // Check initial nothing state
+      const nothingResult = effect.match({
+        data: () => "should not be called",
+        error: () => "should not be called",
+        loading: () => "should not be called",
+        nothing: () => "nothing",
+      });
+      expect(nothingResult).toBe("nothing");
+
+      // Start running and check loading state
+      const runPromise = effect.run();
+      const loadingEffect = effect.getLoadingEffect();
+      if (!loadingEffect) {
+        throw new Error("Loading effect should be available during run");
+      }
+      const loadingResult = loadingEffect.match({
+        data: () => "should not be called",
+        error: () => "should not be called",
+        loading: () => "loading",
+        nothing: () => "should not be called",
+      });
+      expect(loadingResult).toBe("loading");
+
+      // Wait for completion and check success state
+      const finishedEffect = await runPromise;
+      const successResult = finishedEffect.match({
+        data: (value) => value,
+        error: () => "should not be called",
+        loading: () => "should not be called",
+        nothing: () => "should not be called",
+      });
+      expect(successResult).toBe("success");
     });
   });
 });
