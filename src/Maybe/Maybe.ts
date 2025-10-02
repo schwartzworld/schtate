@@ -4,6 +4,13 @@ import { Either } from "../Either/Either.js";
 import { Bool } from "../Bool/Bool.js";
 import { deepClone } from "../utils/deepClone.js";
 
+type MostThings<Something> =
+  | Something
+  | Nothing
+  | Maybe<Something>
+  | null
+  | undefined;
+
 export class Maybe<Something> implements Schtate<Something> {
   private value: Either<Something, Nothing>;
 
@@ -29,7 +36,7 @@ export class Maybe<Something> implements Schtate<Something> {
   }
 
   static of<Something>(
-    val: Something | Nothing | Maybe<Something> | null | undefined
+    val: MostThings<Something> | Promise<MostThings<Something>>
   ): Maybe<Something> {
     if (val === null || val === undefined) {
       return Maybe.nothing<Something>();
@@ -68,6 +75,24 @@ export class Maybe<Something> implements Schtate<Something> {
           return nothing;
         },
       });
+    });
+  }
+
+  async mapAsync<SomethingElse>(
+    cb: (arg: Something) => Promise<SomethingElse> | SomethingElse
+  ): Promise<Maybe<SomethingElse>> {
+    return this.value.match({
+      left: async (val) => {
+        try {
+          const result = await cb(deepClone(val));
+          return Maybe.of<SomethingElse>(result);
+        } catch (error) {
+          return Maybe.nothing<SomethingElse>();
+        }
+      },
+      right: async () => {
+        return Maybe.nothing<SomethingElse>();
+      },
     });
   }
 

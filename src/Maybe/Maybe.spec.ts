@@ -216,4 +216,94 @@ describe("Maybe Monad Tests", () => {
       expect("false branch is called").toBeTruthy();
     });
   });
+
+  describe("async support", () => {
+    it("can map async callbacks using mapAsync", async () => {
+      expect.assertions(2);
+
+      // Test with async callback that resolves successfully
+      const asyncMaybe = await Maybe.of("hello").mapAsync(async (str) => {
+        // Simulate async operation
+        await new Promise((resolve) => setTimeout(resolve, 10));
+        return str.length;
+      });
+
+      asyncMaybe.something((length) => {
+        expect(length).toBe(5);
+      });
+
+      // Test with async callback on nothing
+      const asyncNothing = await Maybe.nothing<string>().mapAsync(async () => {
+        return "should not be called";
+      });
+
+      asyncNothing.nothing((val) => {
+        expect(val.isNothing).toBe(true);
+      });
+    });
+
+    it("handles rejected promises in mapAsync", async () => {
+      expect.assertions(1);
+
+      const asyncError = await Maybe.of("test").mapAsync(async (str) => {
+        throw new Error("test error");
+      });
+
+      asyncError.nothing((val) => {
+        expect(val.isNothing).toBe(true);
+      });
+    });
+
+    it("can chain async operations", async () => {
+      expect.assertions(1);
+
+      const result = await Maybe.of("hello world")
+        .mapAsync(async (str) => {
+          await new Promise((resolve) => setTimeout(resolve, 5));
+          return str.split(" ");
+        })
+        .then((maybe) =>
+          maybe.mapAsync(async (words) => {
+            await new Promise((resolve) => setTimeout(resolve, 5));
+            return words.length;
+          })
+        )
+        .then((maybe) =>
+          maybe.mapAsync(async (count) => {
+            await new Promise((resolve) => setTimeout(resolve, 5));
+            return count * 2;
+          })
+        );
+
+      result.something((doubledLength) => {
+        expect(doubledLength).toBe(4); // 2 words * 2
+      });
+    });
+
+    it("works with mixed sync and async callbacks", async () => {
+      expect.assertions(1);
+
+      const result = await Maybe.of("  hello  ")
+        .mapAsync(async (str) => {
+          await new Promise((resolve) => setTimeout(resolve, 10));
+          return str.trim();
+        })
+        .then((maybe) =>
+          maybe.map((str) => {
+            // This should be a regular sync map
+            return str.toUpperCase();
+          })
+        )
+        .then((maybe) =>
+          maybe.mapAsync(async (str) => {
+            await new Promise((resolve) => setTimeout(resolve, 10));
+            return str.length;
+          })
+        );
+
+      result.something((length) => {
+        expect(length).toBe(5); // "HELLO"
+      });
+    });
+  });
 });
